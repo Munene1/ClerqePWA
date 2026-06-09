@@ -98,7 +98,7 @@ export default function LoginScreen(props: {
       <div className="pointer-events-none fixed bottom-[-5rem] left-[18%] h-80 w-80 rounded-full bg-white/22 blur-3xl dark:bg-[#0f2a27]/18" />
       <div className="relative flex grow flex-col items-center justify-center px-6 pb-[calc(1rem+var(--sab,0px))] pt-[calc(1.5rem+var(--sat,0px))]">
         <div className="flex w-full max-w-sm flex-col items-center text-center">
-          <ClerqeLogo className="mb-6 inline-block h-10" />
+          <ClerqeLogo className="mb-6 inline-block h-12" />
           {form}
         </div>
       </div>

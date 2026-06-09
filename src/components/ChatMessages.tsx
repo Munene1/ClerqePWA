@@ -1,6 +1,5 @@
 import React, { useLayoutEffect, useRef } from "react";
 import type { ChatMessage } from "../types/chat";
-import EmptyState from "./EmptyState";
 import MessageBubble from "./MessageBubble";
 
 const MESSAGE_TIME_BREAK_MS = 5 * 60 * 1000;
@@ -37,6 +36,7 @@ function isSensitiveInput(text: string, previousMessage: ChatMessage | null): bo
 export default function ChatMessages(props: {
   messages: ChatMessage[];
   loadingHistory: boolean;
+  criticalError: string | null;
   historyMessageCount: number;
   liveMessageCount: number;
   activeStatus: string | null;
@@ -98,7 +98,19 @@ export default function ChatMessages(props: {
       }}
     >
       <div className="space-y-4">
-        {props.messages.length === 0 && !props.loadingHistory && <EmptyState />}
+        {props.messages.length === 0 && !props.loadingHistory && props.criticalError && (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <p className="max-w-[260px] text-sm leading-5 text-gray-500 dark:text-gray-400">{props.criticalError}</p>
+          </div>
+        )}
+        {props.messages.length === 0 && !props.loadingHistory && !props.criticalError && null}
         {props.messages.length === 0 && props.loadingHistory && (
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
