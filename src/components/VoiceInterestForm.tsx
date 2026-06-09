@@ -92,17 +92,14 @@ export default function VoiceInterestForm({
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ language, industry, useCase }),
+        body: JSON.stringify({ language, industry, use_case: useCase }),
       });
-      if (res.status === 409 || res.ok) {
+      if (res.ok || res.status === 409) {
         setAlreadyOnList(res.status === 409);
         setSubmitted(res.ok);
         localStorage.setItem(voiceCacheKey(accessToken), "1");
-      } else {
-        setSubmitted(true);
       }
     } catch {
-      setSubmitted(true);
     } finally {
       setSending(false);
     }
