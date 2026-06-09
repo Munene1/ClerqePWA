@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { API_BASE_URL } from "../config/env";
 import Icon from "./Icon";
 
+const voiceCacheKey = (token: string) => `clerqe_voice_${token.slice(-16)}`;
+
 const LANGUAGES = [
   { value: "kenyanese", label: "Kenyanese — street English + Swahili" },
   { value: "kiswahili", label: "Kiswahili" },
@@ -48,6 +50,13 @@ export default function VoiceInterestForm({
   }, []);
 
   useEffect(() => {
+    const cached = localStorage.getItem(voiceCacheKey(accessToken));
+    if (cached === "1") {
+      setAlreadyOnList(true);
+      setChecking(false);
+      return;
+    }
+
     const abort = new AbortController();
     (async () => {
       try {
@@ -57,7 +66,11 @@ export default function VoiceInterestForm({
         });
         if (res.status === 200) {
           const data = await res.json();
-          if (data.status === "registered") setAlreadyOnList(true);
+          const registered = !!(data?.status === "registered" || data?.registered || data?.is_registered);
+          if (registered) {
+            setAlreadyOnList(true);
+            localStorage.setItem(voiceCacheKey(accessToken), "1");
+          }
         }
       } catch {
       } finally {
@@ -81,10 +94,10 @@ export default function VoiceInterestForm({
         },
         body: JSON.stringify({ language, industry, useCase }),
       });
-      if (res.status === 409) {
-        setAlreadyOnList(true);
-      } else if (!res.ok) {
-        setSubmitted(true);
+      if (res.status === 409 || res.ok) {
+        setAlreadyOnList(res.status === 409);
+        setSubmitted(res.ok);
+        localStorage.setItem(voiceCacheKey(accessToken), "1");
       } else {
         setSubmitted(true);
       }
