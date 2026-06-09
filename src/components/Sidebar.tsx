@@ -4,7 +4,7 @@ import ClerqeLogo from "./ClerqeLogo";
 
 export default function Sidebar(props: {
   open: boolean;
-  theme: "light" | "dark";
+  theme: "light" | "dark" | "system";
   onClose: () => void;
   onLogout: () => void;
   onToggleTheme: () => void;
@@ -63,8 +63,8 @@ export default function Sidebar(props: {
             onClick={() => { props.onToggleTheme(); props.onClose(); }}
             className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
           >
-            <Icon name={props.theme === "dark" ? "light_mode" : "dark_mode"} className="text-base" />
-            <span>{props.theme === "dark" ? "Light mode" : "Dark mode"}</span>
+            <Icon name={props.theme === "dark" ? "dark_mode" : props.theme === "system" ? "settings" : "light_mode"} className="text-base" />
+            <span>{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
           </button>
 
           <button

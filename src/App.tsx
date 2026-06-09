@@ -19,9 +19,10 @@ export default function App() {
   const [loadingOlderHistory, setLoadingOlderHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
+  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
     const saved = localStorage.getItem("banka_theme");
-    return saved === "light" ? "light" : "dark";
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+    return "system";
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sessionState = useBankingSession();
@@ -81,14 +82,43 @@ export default function App() {
     handleLogout();
   }, [socket.sessionExpired]);
 
+  const resolveTheme = (pref: "light" | "dark" | "system") => {
+    if (pref === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return pref;
+  };
+
   useEffect(() => {
+    const resolved = resolveTheme(theme);
     document.documentElement.classList.remove("light", "dark");
     document.body.classList.remove("light", "dark");
-    document.documentElement.classList.add(theme);
-    document.body.classList.add(theme);
-    document.documentElement.setAttribute("data-theme", theme);
-    document.body.setAttribute("data-theme", theme);
+    document.documentElement.classList.add(resolved);
+    document.body.classList.add(resolved);
+    document.documentElement.setAttribute("data-theme", resolved);
+    document.body.setAttribute("data-theme", resolved);
     localStorage.setItem("banka_theme", theme);
+
+    const meta = document.querySelector("meta[name=theme-color]");
+    if (meta) {
+      meta.setAttribute("content", resolved === "dark" ? "#000000" : "#ffffff");
+    }
+
+    if (theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      const next = e.matches ? "dark" : "light";
+      document.documentElement.classList.remove("light", "dark");
+      document.body.classList.remove("light", "dark");
+      document.documentElement.classList.add(next);
+      document.body.classList.add(next);
+      document.documentElement.setAttribute("data-theme", next);
+      document.body.setAttribute("data-theme", next);
+      const meta2 = document.querySelector("meta[name=theme-color]");
+      if (meta2) meta2.setAttribute("content", next === "dark" ? "#000000" : "#ffffff");
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, [theme]);
 
   useEffect(() => {
@@ -210,7 +240,7 @@ export default function App() {
                 theme={theme}
                 onClose={() => setSidebarOpen(false)}
                 onLogout={handleLogout}
-                onToggleTheme={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+                onToggleTheme={() => setTheme((prev) => (prev === "dark" ? "system" : prev === "system" ? "light" : "dark"))}
               />
               <div
           className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#1a1a1a] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
