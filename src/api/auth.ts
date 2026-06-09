@@ -117,7 +117,7 @@ By creating an account, you confirm that you understand this is a sandbox enviro
 export async function confirmAccountCreation(
   payload: Pick<SignUpFlowState, "identifier" | "full_name">,
 ) {
-  return request<OtpSentResponse>("/auth/account-creation/confirm", {
+  return request<OtpSentResponse>("/auth/enroll", {
     ...payload,
     confirm_create_account: true,
     terms_accepted: true,
@@ -131,7 +131,7 @@ export async function verifyAccountCreationOtp(payload: {
   otp: string;
 }) {
   return request<CustomerSession | PinSetupRequiredResponse>(
-    "/auth/account-creation/verify-otp",
+    "/auth/enroll/verify",
     payload,
   );
 }
@@ -141,5 +141,5 @@ export async function setupAccountCreationPin(payload: {
   pin: string;
   confirm_pin: string;
 }) {
-  return request<CustomerSession>("/auth/account-creation/setup-pin", payload);
+  return request<CustomerSession>("/auth/enroll/pin", payload);
 }
