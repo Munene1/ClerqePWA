@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Text:wght@400;500;700");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+body {
+  font-family: "Google Sans Text", "Google Sans", "Roboto", "Segoe UI", Arial, sans-serif;
+  background: rgba(249, 250, 251, 0.1);
+  color: #0f172a;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* safe area insets for notched devices */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --brand-primary: #0f5258;
+  --brand-primary-hover: #0c454b;
+  --brand-primary-soft: #e6f1f2;
+  --brand-primary-ring: rgba(15, 82, 88, 0.18);
+}
+
+.dark body {
+  background: #04110f;
+  color: #e2e8f0;
+  --brand-primary: #143c39;
+  --brand-primary-hover: #1a4a46;
+  --brand-primary-soft: rgba(255, 255, 255, 0.05);
+  --brand-primary-ring: rgba(20, 60, 57, 0.38);
+}
+
+#root {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Improve scrolling on iOS */
+.no-scrollbar {
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.subtle-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
+}
+
+.subtle-scrollbar:hover {
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
+}
+
+.subtle-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.subtle-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subtle-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.subtle-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+}
+
+.dark .subtle-scrollbar:hover {
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.dark .subtle-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+}
+
+@keyframes chatEntry {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-entry {
+  animation: chatEntry 180ms ease-out;
+}
+
+@keyframes installSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-install-slide-up {
+  animation: installSlideUp 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-toast-slide-in {
+  animation: toastSlideIn 220ms ease-out;
+}
+
+@keyframes drawQ {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawQTail {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-q {
+  animation: drawQ 2s ease-out forwards;
+}
+
+.animate-draw-q-tail {
+  animation: drawQTail 0.6s ease-out 1.6s forwards;
+}
+
+@keyframes drawLogoQBowl {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawLogoQTail {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-logo-q-bowl {
+  animation: drawLogoQBowl 0.8s ease-out forwards;
+}
+
+.animate-draw-logo-q-tail {
+  animation: drawLogoQTail 0.4s ease-out 0.6s forwards;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-body > *:last-child {
+  margin-bottom: 0;
+}

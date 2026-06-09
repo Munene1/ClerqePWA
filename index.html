@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/pwa-icon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Clerqe" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Clerqe" />
+    <title>Clerqe - AI Banking Agent</title>
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem("banking_pwa_session");
+          if (!raw) return;
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.session_id && parsed.access_token && parsed.customer_id) {
+            document.documentElement.setAttribute("data-has-session", "true");
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      body {
+        background: linear-gradient(180deg, #ffffff 0%, #eef5f5 20%, #c6dddd 48%, #6e9fa1 74%, #1c666c 90%, #0f5258 100%);
+      }
+
+      #app-shell-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #ffffff 0%, #eef5f5 20%, #c6dddd 48%, #6e9fa1 74%, #1c666c 90%, #0f5258 100%);
+        transition: opacity 220ms ease, visibility 220ms ease;
+      }
+
+      html[data-has-session="true"] #app-shell-loader {
+        display: none;
+      }
+
+      #app-shell-loader.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      #app-shell-loader::before {
+        content: "";
+        position: absolute;
+        right: -4rem;
+        top: -2rem;
+        width: 24rem;
+        height: 24rem;
+        border-radius: 9999px;
+        background: rgba(119, 179, 179, 0.16);
+        filter: blur(48px);
+      }
+
+      #app-shell-loader::after {
+        content: "";
+        position: absolute;
+        bottom: -5rem;
+        left: 18%;
+        width: 20rem;
+        height: 20rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.22);
+        filter: blur(48px);
+      }
+
+      .app-shell-loader__mark {
+        position: relative;
+        width: 132px;
+        height: 132px;
+        color: #0f5258;
+      }
+
+      .app-shell-loader__mark g {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 20;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .app-shell-loader__bowl {
+        stroke-dasharray: 503;
+        stroke-dashoffset: 503;
+        animation: app-shell-draw-q 1.45s ease-out infinite;
+      }
+
+      .app-shell-loader__tail {
+        stroke-dasharray: 81;
+        stroke-dashoffset: 81;
+        animation: app-shell-draw-tail 1.45s ease-out infinite;
+      }
+
+      @keyframes app-shell-draw-q {
+        0% {
+          stroke-dashoffset: 503;
+          opacity: 0.92;
+        }
+        48%,
+        75% {
+          stroke-dashoffset: 0;
+          opacity: 1;
+        }
+        100% {
+          stroke-dashoffset: 0;
+          opacity: 1;
+        }
+      }
+
+      @keyframes app-shell-draw-tail {
+        0%,
+        44% {
+          stroke-dashoffset: 81;
+          opacity: 0;
+        }
+        72%,
+        100% {
+          stroke-dashoffset: 0;
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app-shell-loader" aria-hidden="true">
+      <svg viewBox="0 0 400 400" class="app-shell-loader__mark">
+        <g>
+          <path class="app-shell-loader__bowl" d="M120 200 a80 80 0 1 1 160 0 a80 80 0 1 1 -160 0" />
+          <path class="app-shell-loader__tail" d="M228 228 l57 57" />
+        </g>
+      </svg>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      document.addEventListener("contextmenu", (e) => e.preventDefault());
+      document.addEventListener("copy", (e) => e.preventDefault());
+      document.addEventListener("cut", (e) => e.preventDefault());
+    </script>
+  </body>
+</html>
