@@ -243,7 +243,7 @@ export default function App() {
                 onToggleTheme={() => setTheme((prev) => (prev === "dark" ? "system" : prev === "system" ? "light" : "dark"))}
               />
               <div
-          className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#1a1a1a] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
+          className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-2 py-1.5 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
           style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
         >
           <button
