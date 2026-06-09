@@ -4,19 +4,19 @@ import type { Components } from "react-markdown";
 
 const components: Partial<Components> = {
   table: ({ children }) => (
-    <div className="my-2 overflow-x-auto rounded-[6px] bg-white dark:bg-[#0d0d0d]">
+    <div className="my-2 overflow-x-auto rounded-[6px] bg-white dark:bg-[#1a1a1a]">
       <table className="w-full border-collapse text-sm">{children}</table>
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="border-b border-gray-300 dark:border-gray-700">{children}</thead>
+    <thead className="border-b border-gray-300 dark:border-gray-600">{children}</thead>
   ),
   tbody: ({ children }) => <tbody>{children}</tbody>,
   tr: ({ children }) => (
-    <tr className="border-b border-gray-200 last:border-0 dark:border-gray-800">{children}</tr>
+    <tr className="border-b border-gray-200 last:border-0 dark:border-gray-700">{children}</tr>
   ),
   th: ({ children }) => (
-    <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+    <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
       {children}
     </th>
   ),
