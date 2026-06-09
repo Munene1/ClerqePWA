@@ -6,7 +6,6 @@ import IntroducingClerqe from "./components/IntroducingClerqe";
 import LoginScreen from "./components/LoginScreen";
 import Sidebar from "./components/Sidebar";
 import WelcomePopover from "./components/WelcomePopover";
-import Icon from "./components/Icon";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
 import { useChatMessages } from "./hooks/useChatMessages";

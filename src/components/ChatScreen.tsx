@@ -26,8 +26,8 @@ const ChatScreen = memo(function ChatScreen(props: {
 }) {
   const disabled = props.connectionState !== "connected";
   return (
-    <div className="flex h-dvh items-center justify-center bg-gray-50/50 dark:bg-[#04110f]">
-      <div className="flex h-dvh w-full max-w-2xl flex-col overflow-hidden bg-gray-50 dark:bg-[#03100f]">
+    <div className="flex h-dvh items-center justify-center bg-gray-50/50 dark:bg-black">
+      <div className="flex h-dvh w-full max-w-2xl flex-col overflow-hidden bg-gray-50 dark:bg-black">
         <ChatMessages
           messages={props.messages}
           loadingHistory={props.loadingHistory}
@@ -40,7 +40,7 @@ const ChatScreen = memo(function ChatScreen(props: {
           onLoadOlder={props.onLoadOlderHistory}
         />
         {props.activeClarificationCard && (
-          <div className="bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-gray-900/80">
+          <div className="bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
             <ClarificationCard
               correlationId={props.activeClarificationCard.correlationId}
               question={props.activeClarificationCard.question}
