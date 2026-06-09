@@ -171,7 +171,7 @@ export default function VoiceInterestForm({
 
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Industry</legend>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {INDUSTRIES.map((ind) => (
                       <label
                         key={ind}
@@ -197,7 +197,7 @@ export default function VoiceInterestForm({
 
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Use case</legend>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     {USE_CASES.map((uc) => (
                       <label
                         key={uc}
