@@ -101,28 +101,28 @@ export default function VoiceInterestForm({
   return createPortal(
     <div className="fixed inset-0 z-[100] bg-black/50" onClick={onDismiss}>
       <div
-        className="absolute bottom-0 left-0 right-0 mx-auto flex h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] sm:bottom-auto sm:top-1/2 sm:h-[80vh] sm:-translate-y-1/2 sm:rounded-[24px] dark:border-white/8 dark:bg-slate-900"
+        className="absolute bottom-0 left-0 right-0 mx-auto flex h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] sm:bottom-auto sm:top-1/2 sm:h-[80vh] sm:-translate-y-1/2 sm:rounded-[24px] dark:border-gray-800 dark:bg-black"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain] px-6 pt-7 sm:px-7">
+        <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
           {checking && (
             <div className="flex items-center justify-center py-16">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700" />
                 Checking...
               </div>
             </div>
           )}
 
           {(submitted || alreadyOnList) && (
-            <div className="flex flex-col items-center gap-4 py-12 text-center">
+            <div className="flex flex-col items-center gap-4 px-6 pb-6 pt-7 text-center sm:px-7">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-primary-soft)] dark:bg-white/8">
                 <Icon name="check_circle" className="text-3xl text-[var(--brand-primary)] dark:text-white/75" filled />
               </div>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 {alreadyOnList ? "Already on the list" : "You're on the list"}
               </h2>
-              <p className="max-w-xs text-sm leading-6 text-slate-600 dark:text-slate-400">
+              <p className="max-w-xs text-sm leading-6 text-gray-500 dark:text-gray-400">
                 {alreadyOnList
                   ? "You're already signed up for voice updates. We'll notify you when it becomes available."
                   : "We'll let you know when voice chat is ready. Thanks for your interest."}
@@ -132,27 +132,27 @@ export default function VoiceInterestForm({
 
           {showForm && (
             <>
-              <div className="sticky top-0 z-10 mb-1 flex items-center justify-between bg-white pb-1 dark:bg-slate-900">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">Voice chat is coming</h2>
+              <div className="sticky top-0 z-10 flex items-center justify-between bg-white px-6 pb-1 pt-7 dark:bg-black sm:px-7">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Voice chat is coming</h2>
                 <button
                   onClick={onDismiss}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                 >
                   <Icon name="close" className="text-lg" />
                 </button>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-5 px-6 pb-6 sm:px-7">
                 <fieldset>
-                  <legend className="mb-2 text-sm font-medium text-slate-900 dark:text-slate-50">Preferred language</legend>
+                  <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Preferred language</legend>
                   <div className="space-y-2">
                     {LANGUAGES.map((lang) => (
                       <label
                         key={lang.value}
                         className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-sm transition-colors ${
                           language === lang.value
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-white/25 dark:bg-slate-800"
-                            : "border-black/6 bg-slate-50 dark:border-white/8 dark:bg-slate-800/60"
+                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
+                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
                         }`}
                       >
                         <input
@@ -163,22 +163,22 @@ export default function VoiceInterestForm({
                           onChange={(e) => setLanguage(e.target.value)}
                           className="h-4 w-4 text-[var(--brand-primary)] focus:ring-[var(--brand-primary-ring)]"
                         />
-                        <span className="text-slate-700 dark:text-slate-300">{lang.label}</span>
+                        <span className="text-gray-700 dark:text-gray-300">{lang.label}</span>
                       </label>
                     ))}
                   </div>
                 </fieldset>
 
                 <fieldset>
-                  <legend className="mb-2 text-sm font-medium text-slate-900 dark:text-slate-50">Industry</legend>
+                  <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Industry</legend>
                   <div className="grid grid-cols-2 gap-2">
                     {INDUSTRIES.map((ind) => (
                       <label
                         key={ind}
                         className={`flex cursor-pointer items-center gap-2 rounded-[10px] border px-3 py-2.5 text-sm transition-colors ${
                           industry === ind
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-white/25 dark:bg-slate-800"
-                            : "border-black/6 bg-slate-50 dark:border-white/8 dark:bg-slate-800/60"
+                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
+                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
                         }`}
                       >
                         <input
@@ -189,22 +189,22 @@ export default function VoiceInterestForm({
                           onChange={(e) => setIndustry(e.target.value)}
                           className="h-4 w-4 shrink-0 text-[var(--brand-primary)] focus:ring-[var(--brand-primary-ring)]"
                         />
-                        <span className="text-slate-700 dark:text-slate-300">{ind}</span>
+                        <span className="text-gray-700 dark:text-gray-300">{ind}</span>
                       </label>
                     ))}
                   </div>
                 </fieldset>
 
                 <fieldset>
-                  <legend className="mb-2 text-sm font-medium text-slate-900 dark:text-slate-50">Use case</legend>
+                  <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Use case</legend>
                   <div className="flex gap-2">
                     {USE_CASES.map((uc) => (
                       <label
                         key={uc}
                         className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-4 py-3 text-sm transition-colors ${
                           useCase === uc
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-white/25 dark:bg-slate-800"
-                            : "border-black/6 bg-slate-50 dark:border-white/8 dark:bg-slate-800/60"
+                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
+                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
                         }`}
                       >
                         <input
@@ -215,7 +215,7 @@ export default function VoiceInterestForm({
                           onChange={(e) => setUseCase(e.target.value)}
                           className="h-4 w-4 text-[var(--brand-primary)] focus:ring-[var(--brand-primary-ring)]"
                         />
-                        <span className="text-slate-700 dark:text-slate-300">{uc}</span>
+                        <span className="text-gray-700 dark:text-gray-300">{uc}</span>
                       </label>
                     ))}
                   </div>
@@ -226,7 +226,7 @@ export default function VoiceInterestForm({
         </div>
 
         {showForm && (
-          <div className="shrink-0 border-t border-black/6 px-6 pb-6 pt-4 dark:border-white/8 sm:px-7">
+          <div className="shrink-0 border-t border-black/6 px-6 pb-6 pt-4 dark:border-gray-800 sm:px-7">
             <button
               onClick={handleSubmit}
               disabled={!valid || sending}
@@ -238,7 +238,7 @@ export default function VoiceInterestForm({
         )}
 
         {showDone && (
-          <div className="shrink-0 border-t border-black/6 px-6 pb-6 pt-4 dark:border-white/8 sm:px-7">
+          <div className="shrink-0 border-t border-black/6 px-6 pb-6 pt-4 dark:border-gray-800 sm:px-7">
             <button
               onClick={onDismiss}
               className="w-full rounded-[3px] bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-primary-hover)]"
