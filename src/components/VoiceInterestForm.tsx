@@ -142,18 +142,14 @@ export default function VoiceInterestForm({
                 </button>
               </div>
 
-              <div className="space-y-5 px-6 pb-6 sm:px-7">
+              <div className="space-y-6 px-6 pb-6 sm:px-7">
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Preferred language</legend>
-                  <div className="space-y-2">
+                  <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
                     {LANGUAGES.map((lang) => (
                       <label
                         key={lang.value}
-                        className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-sm transition-colors ${
-                          language === lang.value
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
-                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
-                        }`}
+                        className="flex cursor-pointer items-center gap-3 py-3 text-sm"
                       >
                         <input
                           type="radio"
@@ -171,15 +167,11 @@ export default function VoiceInterestForm({
 
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Industry</legend>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
                     {INDUSTRIES.map((ind) => (
                       <label
                         key={ind}
-                        className={`flex cursor-pointer items-center gap-2 rounded-[10px] border px-3 py-2.5 text-sm transition-colors ${
-                          industry === ind
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
-                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
-                        }`}
+                        className="flex cursor-pointer items-center gap-3 py-3 text-sm"
                       >
                         <input
                           type="radio"
@@ -197,15 +189,11 @@ export default function VoiceInterestForm({
 
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Use case</legend>
-                  <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
                     {USE_CASES.map((uc) => (
                       <label
                         key={uc}
-                        className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[10px] border px-4 py-3 text-sm transition-colors ${
-                          useCase === uc
-                            ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] dark:border-[var(--brand-primary)] dark:bg-gray-800"
-                            : "border-black/6 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
-                        }`}
+                        className="flex cursor-pointer items-center gap-3 py-3 text-sm"
                       >
                         <input
                           type="radio"
