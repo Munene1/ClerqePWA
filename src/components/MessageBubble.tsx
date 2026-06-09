@@ -70,7 +70,7 @@ export default function MessageBubble({
             {message.kind === "assistant_pending" ? (
               <div className="flex items-center gap-2">
                 <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-gray-600 dark:border-t-gray-200" />
-                <p className="whitespace-pre-wrap text-sm leading-6 text-gray-500 dark:text-gray-300">{message.text}</p>
+                <p className="whitespace-pre-wrap text-[15px] leading-6 text-gray-500 dark:text-gray-300">{message.text}</p>
               </div>
             ) : (
               <MarkdownRenderer content={displayText} />

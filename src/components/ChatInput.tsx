@@ -37,7 +37,7 @@ export default function ChatInput({
         disabled={disabled}
         rows={1}
         style={{ color: text.trim().length > 0 ? (isDark ? "#eef7f5" : "#1f2937") : undefined }}
-        className="max-h-40 min-h-[40px] flex-1 resize-none bg-transparent py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none dark:text-[#eef7f5] dark:placeholder:text-[#8aa7a2]"
+        className="max-h-40 min-h-[40px] flex-1 resize-none bg-transparent py-2 text-[15px] text-gray-800 placeholder:text-gray-400 focus:outline-none dark:text-[#eef7f5] dark:placeholder:text-[#8aa7a2]"
         placeholder={
           reconnectFailed
             ? "Disconnected from Clerqe"

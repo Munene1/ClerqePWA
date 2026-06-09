@@ -81,7 +81,7 @@ const components: Partial<Components> = {
 
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
-    <div className="markdown-body text-sm leading-6">
+    <div className="markdown-body text-[15px] leading-6">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </ReactMarkdown>
