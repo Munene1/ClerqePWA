@@ -42,7 +42,7 @@ body {
 }
 
 .dark body {
-  background: #04110f;
+  background: #000000;
   color: #e2e8f0;
   --brand-primary: #143c39;
   --brand-primary-hover: #1a4a46;

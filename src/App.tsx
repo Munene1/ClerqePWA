@@ -21,7 +21,7 @@ export default function App() {
   const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("banka_theme");
-    return saved === "dark" ? "dark" : "light";
+    return saved === "light" ? "light" : "dark";
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sessionState = useBankingSession();
@@ -214,11 +214,15 @@ export default function App() {
               />
               <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed left-1.5 z-30 inline-flex h-8 w-8 items-center justify-center rounded-[3px] text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:active:bg-gray-700"
+        className="fixed left-1.5 z-30 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-gray-500 backdrop-blur-sm hover:bg-gray-100 active:bg-gray-200 dark:bg-black/70 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
         style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
         aria-label="Open menu"
       >
-        <Icon name="menu" className="text-lg" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="18" x2="14" y2="18" />
+        </svg>
       </button>
       <ChatScreen
         connectionState={socket.connectionState}
