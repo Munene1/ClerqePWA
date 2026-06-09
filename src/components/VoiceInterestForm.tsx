@@ -143,7 +143,7 @@ export default function VoiceInterestForm({
           {showForm && (
             <>
               <div className="sticky top-0 z-10 flex items-center justify-between bg-white px-6 pb-1 pt-7 dark:bg-black sm:px-7">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Voice chat is coming</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Try Clerqe Voice</h2>
                 <button
                   onClick={onDismiss}
                   className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
