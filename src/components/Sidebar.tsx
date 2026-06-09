@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import ClerqeLogo from "./ClerqeLogo";
 
@@ -7,9 +7,10 @@ export default function Sidebar(props: {
   theme: "light" | "dark" | "system";
   onClose: () => void;
   onLogout: () => void;
-  onToggleTheme: () => void;
+  onSetTheme: (theme: "light" | "dark" | "system") => void;
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [themeOpen, setThemeOpen] = useState(false);
 
   useEffect(() => {
     if (!props.open) return;
@@ -21,6 +22,12 @@ export default function Sidebar(props: {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [props.open]);
+
+  const themeOptions: { value: "light" | "dark" | "system"; label: string; icon: string }[] = [
+    { value: "dark", label: "Dark mode", icon: "dark_mode" },
+    { value: "system", label: "System theme", icon: "settings" },
+    { value: "light", label: "Light mode", icon: "light_mode" },
+  ];
 
   return (
     <aside
@@ -60,12 +67,32 @@ export default function Sidebar(props: {
 
         <div className="space-y-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
           <button
-            onClick={() => { props.onToggleTheme(); props.onClose(); }}
+            onClick={() => setThemeOpen(!themeOpen)}
             className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
           >
             <Icon name={props.theme === "dark" ? "dark_mode" : props.theme === "system" ? "settings" : "light_mode"} className="text-base" />
-            <span>{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
+            <span className="flex-1 text-left">{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
+            <Icon name="arrow_back" className={`text-base transition-transform duration-200 ${themeOpen ? "-rotate-90" : "rotate-180"}`} />
           </button>
+
+          {themeOpen && (
+            <div className="ml-2 space-y-0.5 border-l border-gray-200 pl-2 dark:border-gray-800">
+              {themeOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => { props.onSetTheme(opt.value); props.onClose(); }}
+                  className={`flex w-full items-center gap-3 rounded-[3px] px-3 py-2 text-sm transition-colors ${
+                    props.theme === opt.value
+                      ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)] dark:bg-white/5 dark:text-white/80"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                  }`}
+                >
+                  <Icon name={opt.icon} className="text-sm" />
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           <button
             onClick={() => { props.onLogout(); props.onClose(); }}
