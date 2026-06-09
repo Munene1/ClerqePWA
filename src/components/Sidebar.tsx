@@ -25,7 +25,7 @@ export default function Sidebar(props: {
   return (
     <aside
       ref={sidebarRef}
-      className={`fixed left-0 top-0 z-50 h-full w-72 border-r border-gray-200 bg-white transition-[transform] duration-200 ease-out transform-gpu dark:border-gray-800 dark:bg-black md:w-80 pt-[var(--sat,0px)] ${
+      className={`fixed left-0 top-0 z-50 h-full w-[75vw] border-r border-gray-200 bg-white transition-[transform] duration-200 ease-out transform-gpu dark:border-gray-800 dark:bg-black md:w-80 pt-[var(--sat,0px)] ${
         props.open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -50,7 +50,7 @@ export default function Sidebar(props: {
           </button>
 
           <button
-            onClick={() => {}}
+            onClick={() => { props.onClose(); }}
             className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
           >
             <Icon name="history" className="text-base" />
@@ -60,7 +60,7 @@ export default function Sidebar(props: {
 
         <div className="space-y-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
           <button
-            onClick={props.onToggleTheme}
+            onClick={() => { props.onToggleTheme(); props.onClose(); }}
             className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
           >
             <Icon name={props.theme === "dark" ? "light_mode" : "dark_mode"} className="text-base" />
@@ -68,7 +68,7 @@ export default function Sidebar(props: {
           </button>
 
           <button
-            onClick={props.onLogout}
+            onClick={() => { props.onLogout(); props.onClose(); }}
             className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
           >
             <Icon name="logout" className="text-base" />
