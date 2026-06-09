@@ -34,7 +34,7 @@ export default function MessageBubble({
     message.kind === "error"
       ? "rounded-[4px] border border-black/6 bg-black/[0.035] px-3.5 py-2.5 text-gray-600 dark:border-white/8 dark:bg-white/[0.035] dark:text-gray-300"
       : mine
-        ? "rounded-[6px] bg-[#43B5A5] px-2.5 py-[7px] text-white dark:bg-[#3AA594] dark:text-white"
+        ? "rounded-[6px] bg-[#35998B] px-2.5 py-[7px] text-white ![&_*]:text-white dark:bg-[#2D8A7D] dark:text-white dark:![&_*]:text-white"
         : "bg-transparent text-gray-800 dark:text-gray-100";
   const label = mine ? "You" : "Clerqe";
   const displayText = masked && !unmasked ? maskText(message.text) : message.text;
