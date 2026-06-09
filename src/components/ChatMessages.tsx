@@ -83,20 +83,22 @@ export default function ChatMessages(props: {
   }, [props.hasOlderHistory, props.loadingOlder, props.messages.length, props.historyMessageCount, props.onLoadOlder]);
 
   return (
-    <div
-      ref={scrollRef}
-      className="no-scrollbar flex-1 overflow-y-auto px-5 py-6"
-      onScroll={(e) => {
-        const top = e.currentTarget.scrollTop;
-        lastScrollTopRef.current = top;
-        if (top < 80 && props.hasOlderHistory && !props.loadingOlder) {
-          preserveScrollRef.current = true;
-          preservedScrollHeightRef.current = e.currentTarget.scrollHeight;
-          props.onLoadOlder();
-        }
-        lastScrollTopRef.current = top;
-      }}
-    >
+    <div className="relative flex-1">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-14 bg-gradient-to-b from-gray-100 to-transparent dark:from-[#080808]" />
+      <div
+        ref={scrollRef}
+        className="no-scrollbar absolute inset-0 overflow-y-auto px-5 pb-4 pt-[var(--sat)]"
+        onScroll={(e) => {
+          const top = e.currentTarget.scrollTop;
+          lastScrollTopRef.current = top;
+          if (top < 80 && props.hasOlderHistory && !props.loadingOlder) {
+            preserveScrollRef.current = true;
+            preservedScrollHeightRef.current = e.currentTarget.scrollHeight;
+            props.onLoadOlder();
+          }
+          lastScrollTopRef.current = top;
+        }}
+      >
       <div className="space-y-4">
         {props.messages.length === 0 && !props.loadingHistory && props.criticalError && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
@@ -173,6 +175,7 @@ export default function ChatMessages(props: {
         )}
         <div ref={bottomRef} />
       </div>
+    </div>
     </div>
   );
 }
