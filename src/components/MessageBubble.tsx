@@ -40,7 +40,7 @@ export default function MessageBubble({
   const displayText = masked && !unmasked ? maskText(message.text) : message.text;
   return (
     <div className={`chat-entry flex ${mine ? "justify-end" : "justify-start"}`}>
-      <div className="flex max-w-[88%] flex-col gap-0.5">
+      <div className={`flex flex-col gap-0.5 ${mine ? "max-w-[88%]" : "w-full"}`}>
         {showTimestamp && (
           <div className={`flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500 ${mine ? "justify-end pr-0.5" : "justify-start"}`}>
             <span className="font-medium text-gray-500 dark:text-gray-400">{label}</span>
