@@ -5,6 +5,7 @@ import InstallPromptBanner from "./components/InstallPromptBanner";
 import IntroducingClerqe from "./components/IntroducingClerqe";
 import LoginScreen from "./components/LoginScreen";
 import Sidebar from "./components/Sidebar";
+import ClerqeLogo from "./components/ClerqeLogo";
 import WelcomePopover from "./components/WelcomePopover";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
@@ -211,18 +212,23 @@ export default function App() {
                 onLogout={handleLogout}
                 onToggleTheme={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
               />
-              <button
+              <div
+          className="fixed left-1.5 z-30 flex items-center gap-2"
+          style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
+        >
+          <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed left-1.5 z-30 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-gray-500 backdrop-blur-sm hover:bg-gray-100 active:bg-gray-200 dark:bg-black/70 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
-        style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-gray-500 backdrop-blur-md hover:bg-gray-100 active:bg-gray-200 dark:bg-black/80 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
         aria-label="Open menu"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <line x1="4" y1="6" x2="20" y2="6" />
           <line x1="4" y1="12" x2="20" y2="12" />
           <line x1="4" y1="18" x2="14" y2="18" />
         </svg>
       </button>
+      <ClerqeLogo className="h-6 text-gray-700 dark:text-gray-300" />
+      </div>
       <ChatScreen
         connectionState={socket.connectionState}
         reconnectFailed={socket.reconnectFailed}
