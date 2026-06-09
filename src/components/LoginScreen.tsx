@@ -24,7 +24,8 @@ export default function LoginScreen(props: {
     <div className="w-full max-w-sm text-left">
       {props.authStep === "identifier" && (
         <form
-          className="space-y-5"
+          key="identifier"
+          className="animate-fade-slide-in space-y-5"
           onSubmit={(e) => {
             e.preventDefault();
             if (props.loading || !props.identifier.trim()) return;
@@ -63,7 +64,8 @@ export default function LoginScreen(props: {
       )}
 
       {props.authStep === "signup" && (
-        <AccountCreationPrompt
+        <div key="signup" className="animate-fade-slide-in">
+          <AccountCreationPrompt
           message={props.authMessage || "No account found for that identifier."}
           identifier={props.identifier}
           initialFullName={props.fullName}
@@ -73,10 +75,12 @@ export default function LoginScreen(props: {
           onCancel={props.onCancelFlow}
           onClearError={props.onClearError}
         />
+        </div>
       )}
 
       {props.authStep === "signup_otp" && (
-        <OtpVerificationCard
+        <div key="otp" className="animate-fade-slide-in">
+          <OtpVerificationCard
           title="Verify account"
           message={props.authMessage || "Enter the OTP sent to your email."}
           loading={props.loading}
@@ -84,10 +88,13 @@ export default function LoginScreen(props: {
           onCancel={props.onCancelFlow}
           onClearError={props.onClearError}
         />
+        </div>
       )}
 
       {props.authStep === "signup_pin" && (
-        <PinSetupCard loading={props.loading} onSubmit={props.onSubmitPinSetup} onCancel={props.onCancelFlow} onClearError={props.onClearError} />
+        <div key="pin" className="animate-fade-slide-in">
+          <PinSetupCard loading={props.loading} onSubmit={props.onSubmitPinSetup} onCancel={props.onCancelFlow} onClearError={props.onClearError} />
+        </div>
       )}
     </div>
   );

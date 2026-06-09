@@ -5,8 +5,8 @@ export default function WelcomePopover({ onDismiss }: { onDismiss: () => void })
   const [checked, setChecked] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="flex max-h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] dark:border-white/8 dark:bg-slate-900 sm:rounded-[24px]">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-fade-in sm:items-center">
+      <div className="animate-scale-in flex max-h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] dark:border-white/8 dark:bg-slate-900 sm:rounded-[24px]">
         <div className="no-scrollbar overflow-y-auto px-6 pb-3 pt-7 sm:px-7">
           <div className="mb-5 flex items-center justify-between gap-4">
             <ClerqeLogo className="inline-block h-8" />

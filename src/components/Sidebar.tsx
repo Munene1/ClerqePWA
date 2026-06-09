@@ -32,7 +32,7 @@ export default function Sidebar(props: {
   return (
     <aside
       ref={sidebarRef}
-      className={`fixed left-0 top-0 z-50 h-full w-[75vw] border-r border-gray-200 bg-white transition-[transform] duration-200 ease-out transform-gpu dark:border-gray-800 dark:bg-black md:w-80 pt-[var(--sat,0px)] ${
+      className={`fixed left-0 top-0 z-50 h-full w-[75vw] border-r border-gray-200 bg-white transition-[transform] duration-300 ease-out transform-gpu dark:border-gray-800 dark:bg-black md:w-80 pt-[var(--sat,0px)] ${
         props.open ? "translate-x-0" : "-translate-x-full"
       }`}
     >

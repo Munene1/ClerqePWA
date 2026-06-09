@@ -12,10 +12,12 @@ export default function MessageBubble({
   message,
   showTimestamp = true,
   masked = false,
+  animationDelay,
 }: {
   message: Extract<ChatMessage, { kind: "user" | "assistant" | "assistant_pending" | "error" }>;
   showTimestamp?: boolean;
   masked?: boolean;
+  animationDelay?: string;
 }) {
   const [unmasked, setUnmasked] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -39,7 +41,7 @@ export default function MessageBubble({
   const label = mine ? "You" : "Clerqe";
   const displayText = masked && !unmasked ? maskText(message.text) : message.text;
   return (
-    <div className={`chat-entry flex ${mine ? "justify-end" : "justify-start"}`}>
+    <div className={`chat-entry flex ${mine ? "justify-end" : "justify-start"}`} style={animationDelay ? { animationDelay } : undefined}>
       <div className={`flex flex-col gap-0.5 ${mine ? "max-w-[88%]" : "w-full"}`}>
         {showTimestamp && (
           <div className={`flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500 ${mine ? "justify-end pr-0.5" : "justify-start"}`}>

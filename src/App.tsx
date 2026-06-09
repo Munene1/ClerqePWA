@@ -204,7 +204,8 @@ export default function App() {
         path="*"
         element={
           !sessionState.authenticated || forceLogin ? (
-            <>
+            <div key="login" className="animate-fade-in">
+              <>
               {signupNoticeVisible && (
                 <div className="pointer-events-none fixed left-1/2 top-3 z-[70] w-[min(92vw,32rem)] -translate-x-1/2 animate-toast-slide-in">
                   <div className="rounded-[6px] border border-black/8 bg-white px-4 py-3 text-sm leading-5 text-slate-700 shadow-[0_10px_30px_rgba(15,82,88,0.10)] dark:border-white/10 dark:bg-white dark:text-slate-800">
@@ -232,9 +233,10 @@ export default function App() {
                   onClearError={sessionState.clearError}
                 />
               )}
-            </>
+              </>
+            </div>
           ) : (
-            <>
+            <div key="chat" className="animate-fade-in">
               <Sidebar
                 open={sidebarOpen}
                 theme={theme}
@@ -318,7 +320,7 @@ export default function App() {
           onDismiss={() => installPrompt.setDismissed(true)}
         />
       )}
-            </>
+            </div>
           )
         }
       />

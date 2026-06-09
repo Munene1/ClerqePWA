@@ -59,6 +59,7 @@ body {
 /* Prevent text size adjustment on orientation change */
 html {
   -webkit-text-size-adjust: 100%;
+  transition: background-color 250ms ease;
 }
 
 /* Improve scrolling on iOS */
@@ -126,6 +127,69 @@ html {
 
 .chat-entry {
   animation: chatEntry 180ms ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-slide-in {
+  animation: fadeSlideIn 200ms ease-out both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out both;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fadeOut 200ms ease-out both;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-scale-in {
+  animation: scaleIn 250ms ease-out both;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+.animate-slide-down {
+  animation: slideDown 250ms ease-in both;
+}
+
+@keyframes chatEntryStagger {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-entry-stagger {
+  animation: chatEntryStagger 200ms ease-out both;
 }
 
 @keyframes installSlideUp {

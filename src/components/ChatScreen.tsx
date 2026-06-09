@@ -42,7 +42,7 @@ const ChatScreen = memo(function ChatScreen(props: {
           onLoadOlder={props.onLoadOlderHistory}
         />
         {props.activeClarificationCard && (
-          <div className="bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
+          <div className="animate-fade-slide-in bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
             <ClarificationCard
               correlationId={props.activeClarificationCard.correlationId}
               question={props.activeClarificationCard.question}

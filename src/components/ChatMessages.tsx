@@ -151,7 +151,7 @@ export default function ChatMessages(props: {
                       <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
                     </div>
                   )}
-                  <MessageBubble message={message} showTimestamp={showTimestamp} masked={masked} />
+                  <MessageBubble message={message} showTimestamp={showTimestamp} masked={masked} animationDelay={`${(props.messages.length - 1 - index) * 20}ms`} />
                 </React.Fragment>
               );
             }

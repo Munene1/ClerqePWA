@@ -109,9 +109,9 @@ export default function VoiceInterestForm({
   const showDone = (submitted || alreadyOnList) && !checking;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black/50" onClick={onDismiss}>
+    <div className="fixed inset-0 z-[100] bg-black/50 animate-fade-in" onClick={onDismiss}>
       <div
-        className="absolute bottom-0 left-0 right-0 mx-auto flex h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] sm:bottom-auto sm:top-1/2 sm:h-[80vh] sm:-translate-y-1/2 sm:rounded-[24px] dark:border-gray-800 dark:bg-black"
+        className="absolute bottom-0 left-0 right-0 mx-auto flex h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] animate-slide-up sm:bottom-auto sm:top-1/2 sm:h-[80vh] sm:-translate-y-1/2 sm:rounded-[24px] dark:border-gray-800 dark:bg-black"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
