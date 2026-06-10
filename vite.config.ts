@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  base: "./",
   plugins: [
     react(),
     VitePWA({
@@ -14,8 +15,8 @@ export default defineConfig({
         description: "Intelligent banking assistant powered by AI",
         start_url: "/",
         display: "standalone",
-        background_color: "#fefefe",
-        theme_color: "#0f172a",
+        background_color: "#000000",
+        theme_color: "#000000",
         orientation: "portrait",
         icons: [
           {

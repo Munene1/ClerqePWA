@@ -16,6 +16,20 @@ import { loadChatHistory } from "./utils/storage";
 
 export default function App() {
   const [identifier, setIdentifier] = useState("");
+
+  // Capacitor native StatusBar — runs only in native WebView
+  useEffect(() => {
+    try {
+      const w = window as typeof window & { Capacitor?: { Plugins: Record<string, any> } };
+      const { StatusBar } = w.Capacitor?.Plugins || {};
+      if (StatusBar) {
+        StatusBar.setOverlaysWebView({ overlay: true });
+        StatusBar.setStyle({ style: "DARK" });
+      }
+    } catch {
+      // not running in Capacitor (browser dev)
+    }
+  }, []);
   const [loadingOlderHistory, setLoadingOlderHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
