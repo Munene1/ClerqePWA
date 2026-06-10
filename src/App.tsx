@@ -115,7 +115,7 @@ export default function App() {
 
     const meta = document.querySelector("meta[name=theme-color]");
     if (meta) {
-      meta.setAttribute("content", resolved === "dark" ? "#000000" : "#ffffff");
+      meta.setAttribute("content", resolved === "dark" ? "#020907" : "#ffffff");
     }
 
     if (theme !== "system") return;
@@ -129,7 +129,7 @@ export default function App() {
       document.documentElement.setAttribute("data-theme", next);
       document.body.setAttribute("data-theme", next);
       const meta2 = document.querySelector("meta[name=theme-color]");
-      if (meta2) meta2.setAttribute("content", next === "dark" ? "#000000" : "#ffffff");
+      if (meta2) meta2.setAttribute("content", next === "dark" ? "#020907" : "#ffffff");
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);

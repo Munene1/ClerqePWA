@@ -25,7 +25,7 @@ input, textarea, [contenteditable] {
 
 body {
   font-family: "Google Sans Text", "Google Sans", "Roboto", "Segoe UI", Arial, sans-serif;
-  background: rgba(249, 250, 251, 0.1);
+  background: #ffffff;
   color: #0f172a;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
@@ -42,7 +42,7 @@ body {
 }
 
 .dark body {
-  background: #000000;
+  background: #020907;
   color: #e2e8f0;
   --brand-primary: #143c39;
   --brand-primary-hover: #1a4a46;
