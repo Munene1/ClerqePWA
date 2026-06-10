@@ -202,6 +202,14 @@ export default function App() {
   }, [loadingHistory, socket.lastEvent]);
 
   useEffect(() => {
+    const loader = document.getElementById("app-shell-loader");
+    if (loader) {
+      loader.classList.add("is-hidden");
+      setTimeout(() => loader.remove(), 300);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!sessionState.preSignupWelcome) {
       setSignupNoticeVisible(false);
       return;

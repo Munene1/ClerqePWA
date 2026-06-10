@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../config/env";
+import { nativeFetch } from "./nativeFetch";
 import type {
   CustomerSession,
   LoginResponse,
@@ -16,15 +17,6 @@ type ApiErrorPayload = {
   error?: unknown;
   errors?: unknown;
 };
-
-function parseResponseBody(raw: string) {
-  if (!raw.trim()) return {};
-  try {
-    return JSON.parse(raw) as Record<string, unknown>;
-  } catch {
-    return { message: raw.trim() };
-  }
-}
 
 function extractMessageFromValue(value: unknown): string | null {
   if (typeof value === "string" && value.trim()) return value.trim();
@@ -61,36 +53,32 @@ export function extractApiErrorMessage(error: unknown, fallback = "Something wen
 }
 
 async function request<T>(path: string, body: Record<string, unknown>): Promise<T> {
-  let response: Response;
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let status: number;
+  let data: ApiErrorPayload & Record<string, unknown>;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    const res = await nativeFetch<ApiErrorPayload & Record<string, unknown>>(`${API_BASE_URL}${path}`, {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify(body),
-      signal: controller.signal,
+      timeout: REQUEST_TIMEOUT_MS,
     });
+    status = res.status;
+    data = res.data;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error("The server took too long to respond. Please try again.");
     }
     throw new Error(extractApiErrorMessage(error));
-  } finally {
-    window.clearTimeout(timeout);
   }
 
-  const raw = await response.text().catch(() => "");
-  const data = parseResponseBody(raw) as ApiErrorPayload & Record<string, unknown>;
-
-  if (!response.ok) {
+  if (status < 200 || status >= 300) {
     const message =
       extractMessageFromValue(data.message) ||
       extractMessageFromValue(data.detail) ||
       extractMessageFromValue(data.error) ||
       extractMessageFromValue(data.errors) ||
       extractMessageFromValue(data) ||
-      `Request failed (${response.status})`;
+      `Request failed (${status})`;
     throw new Error(message);
   }
   return data as T;

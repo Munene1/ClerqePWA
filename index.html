@@ -60,7 +60,27 @@
         align-items: center;
         justify-content: center;
         background: #ffffff;
-        transition: opacity 220ms ease, visibility 220ms ease;
+        transition: opacity 300ms ease, visibility 300ms ease;
+      }
+
+      .app-shell-loader__inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .app-shell-loader__text {
+        margin: 0;
+        font-family: "Google Sans", "Roboto", Arial, sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        color: #64748b;
+        letter-spacing: 0.01em;
+      }
+
+      html.dark .app-shell-loader__text {
+        color: #94a3b8;
       }
 
       .dark #app-shell-loader {
@@ -172,12 +192,15 @@
   </head>
   <body>
     <div id="app-shell-loader" aria-hidden="true">
-      <svg viewBox="0 0 400 400" class="app-shell-loader__mark">
-        <g>
-          <path class="app-shell-loader__bowl" d="M120 200 a80 80 0 1 1 160 0 a80 80 0 1 1 -160 0" />
-          <path class="app-shell-loader__tail" d="M228 228 l57 57" />
-        </g>
-      </svg>
+      <div class="app-shell-loader__inner">
+        <svg viewBox="0 0 400 400" class="app-shell-loader__mark">
+          <g>
+            <path class="app-shell-loader__bowl" d="M120 200 a80 80 0 1 1 160 0 a80 80 0 1 1 -160 0" />
+            <path class="app-shell-loader__tail" d="M228 228 l57 57" />
+          </g>
+        </svg>
+        <p class="app-shell-loader__text">Connecting you to Clerqe...</p>
+      </div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
