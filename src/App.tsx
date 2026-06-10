@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import IntroducingClerqe from "./components/IntroducingClerqe";
@@ -209,6 +209,19 @@ export default function App() {
     }
   }, []);
 
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
+  const [transitioning, setTransitioning] = useState(false);
+
+  useEffect(() => {
+    if (prevPathRef.current !== location.pathname) {
+      setTransitioning(true);
+      prevPathRef.current = location.pathname;
+      const timer = setTimeout(() => setTransitioning(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     if (!sessionState.preSignupWelcome) {
       setSignupNoticeVisible(false);
@@ -220,6 +233,14 @@ export default function App() {
   }, [sessionState.preSignupWelcome]);
 
   return (
+    <div className="relative">
+      {transitioning && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 dark:bg-black/90 animate-fade-in">
+          <div className="h-1 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+            <div className="h-full w-full animate-loading-pulse rounded-full bg-[var(--brand-primary)]" />
+          </div>
+        </div>
+      )}
     <Routes>
       <Route path="/introducing-clerqe" element={<IntroducingClerqe />} />
       <Route
@@ -267,7 +288,7 @@ export default function App() {
                 onSetTheme={(t) => setTheme(t)}
               />
               <div
-          className="fixed left-1.5 z-30 flex items-center gap-2 rounded-full bg-white/80 px-3 py-2 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
+          className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-1.5 py-1 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
           style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
         >
           <button
@@ -275,13 +296,13 @@ export default function App() {
         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
         aria-label="Open menu"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <line x1="4" y1="6" x2="20" y2="6" />
           <line x1="4" y1="12" x2="20" y2="12" />
           <line x1="4" y1="18" x2="14" y2="18" />
         </svg>
       </button>
-      <ClerqeLogo className="h-10 text-gray-700 dark:text-gray-300" />
+      <ClerqeLogo className="h-8 text-gray-700 dark:text-gray-300" />
       </div>
       <ChatScreen
         connectionState={socket.connectionState}
@@ -347,5 +368,6 @@ export default function App() {
         }
       />
     </Routes>
+    </div>
   );
 }
