@@ -17,19 +17,18 @@ import { loadChatHistory } from "./utils/storage";
 export default function App() {
   const [identifier, setIdentifier] = useState("");
 
-  // Capacitor native StatusBar — runs only in native WebView
-  useEffect(() => {
+  const setStatusBarStyle = (resolved: "light" | "dark") => {
     try {
       const w = window as typeof window & { Capacitor?: { Plugins: Record<string, any> } };
       const { StatusBar } = w.Capacitor?.Plugins || {};
       if (StatusBar) {
         StatusBar.setOverlaysWebView({ overlay: true });
-        StatusBar.setStyle({ style: "DARK" });
+        StatusBar.setStyle({ style: resolved === "light" ? "LIGHT" : "DARK" });
       }
     } catch {
       // not running in Capacitor (browser dev)
     }
-  }, []);
+  };
   const [loadingOlderHistory, setLoadingOlderHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
@@ -118,6 +117,8 @@ export default function App() {
       meta.setAttribute("content", resolved === "dark" ? "#020907" : "#ffffff");
     }
 
+    setStatusBarStyle(resolved);
+
     if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => {
@@ -130,6 +131,7 @@ export default function App() {
       document.body.setAttribute("data-theme", next);
       const meta2 = document.querySelector("meta[name=theme-color]");
       if (meta2) meta2.setAttribute("content", next === "dark" ? "#020907" : "#ffffff");
+      setStatusBarStyle(next);
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
