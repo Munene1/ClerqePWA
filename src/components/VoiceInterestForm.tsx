@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { API_BASE_URL } from "../config/env";
+import { nativeFetch } from "../api/nativeFetch";
 import Icon from "./Icon";
 
 const voiceCacheKey = (token: string) => `clerqe_voice_${token.slice(-16)}`;
@@ -60,13 +61,12 @@ export default function VoiceInterestForm({
     const abort = new AbortController();
     (async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/voice/waitlist/status`, {
+        const res = await nativeFetch<{ status: string }>(`${API_BASE_URL}/voice/waitlist/status`, {
           signal: abort.signal,
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (res.status === 200) {
-          const data = await res.json();
-          const registered = !!(data?.status === "registered" || data?.registered || data?.is_registered);
+          const registered = !!(res.data?.status === "registered");
           if (registered) {
             setAlreadyOnList(true);
             localStorage.setItem(voiceCacheKey(accessToken), "1");
@@ -86,7 +86,7 @@ export default function VoiceInterestForm({
     if (!valid) return;
     setSending(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/voice/waitlist`, {
+      const res = await nativeFetch<{ status: string }>(`${API_BASE_URL}/voice/waitlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,9 +94,9 @@ export default function VoiceInterestForm({
         },
         body: JSON.stringify({ language, industry, use_case: useCase }),
       });
-      if (res.ok || res.status === 409) {
+      if (res.status < 400 || res.status === 409) {
         setAlreadyOnList(res.status === 409);
-        setSubmitted(res.ok);
+        setSubmitted(res.status < 400);
         localStorage.setItem(voiceCacheKey(accessToken), "1");
       }
     } catch {

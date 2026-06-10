@@ -9,6 +9,14 @@ const isNative = () => {
   }
 };
 
+const methodMap: Record<string, (opts: any) => Promise<any>> = {
+  GET: CapacitorHttp.get,
+  POST: CapacitorHttp.post,
+  PUT: CapacitorHttp.put,
+  PATCH: CapacitorHttp.patch,
+  DELETE: CapacitorHttp.delete,
+};
+
 export async function nativeFetch<T>(
   url: string,
   options: RequestInit & { timeout?: number },
@@ -26,12 +34,21 @@ export async function nativeFetch<T>(
     }
   }
 
-  const res = await CapacitorHttp.post({
+  const method = (options.method || "GET").toUpperCase();
+  const nativeMethod = methodMap[method] || CapacitorHttp.request;
+  const headers = (options.headers as Record<string, string>) || {};
+
+  const opts: Record<string, any> = {
     url,
-    headers: (options.headers as Record<string, string>) || {},
-    data: options.body ? JSON.parse(options.body as string) : undefined,
+    headers,
     connectTimeout: options.timeout ?? 10000,
     readTimeout: options.timeout ?? 10000,
-  });
+  };
+
+  if (options.body && method !== "GET") {
+    opts.data = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+  }
+
+  const res = await nativeMethod(opts);
   return { status: res.status, data: res.data as T };
 }
