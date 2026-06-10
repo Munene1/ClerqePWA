@@ -1,3 +1,5 @@
+import { CapacitorHttp } from "@capacitor/core";
+
 const isNative = () => {
   try {
     const w = window as typeof window & { Capacitor?: { isNativePlatform?: () => boolean } };
@@ -24,10 +26,8 @@ export async function nativeFetch<T>(
     }
   }
 
-  const { Http } = await import("@capacitor-community/http");
-  const res = await Http.request({
+  const res = await CapacitorHttp.post({
     url,
-    method: (options.method as string) || "GET",
     headers: (options.headers as Record<string, string>) || {},
     data: options.body ? JSON.parse(options.body as string) : undefined,
     connectTimeout: options.timeout ?? 10000,
