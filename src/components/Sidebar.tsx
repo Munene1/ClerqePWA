@@ -38,7 +38,7 @@ export default function Sidebar(props: {
     >
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-          <ClerqeLogo className="h-5 text-gray-700 dark:text-gray-300" />
+          <ClerqeLogo className="h-12 text-gray-700 dark:text-gray-300" />
           <button
             onClick={props.onClose}
             className="rounded-[3px] p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"

@@ -259,21 +259,21 @@ export default function App() {
                 onSetTheme={(t) => setTheme(t)}
               />
               <div
-          className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-2 py-1.5 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
+          className="fixed left-1.5 z-30 flex items-center gap-2 rounded-full bg-white/80 px-3 py-2 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
           style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
         >
           <button
         onClick={() => setSidebarOpen(true)}
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
         aria-label="Open menu"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <line x1="4" y1="6" x2="20" y2="6" />
           <line x1="4" y1="12" x2="20" y2="12" />
           <line x1="4" y1="18" x2="14" y2="18" />
         </svg>
       </button>
-      <ClerqeLogo className="h-5 text-gray-700 dark:text-gray-300" />
+      <ClerqeLogo className="h-10 text-gray-700 dark:text-gray-300" />
       </div>
       <ChatScreen
         connectionState={socket.connectionState}

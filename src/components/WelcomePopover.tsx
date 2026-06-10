@@ -9,7 +9,7 @@ export default function WelcomePopover({ onDismiss }: { onDismiss: () => void })
       <div className="animate-scale-in flex max-h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] dark:border-white/8 dark:bg-slate-900 sm:rounded-[24px]">
         <div className="no-scrollbar overflow-y-auto px-6 pb-3 pt-7 sm:px-7">
           <div className="mb-5 flex items-center justify-between gap-4">
-            <ClerqeLogo className="inline-block h-8" />
+            <ClerqeLogo className="inline-block h-20" />
             <span className="rounded-full bg-[var(--brand-primary-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--brand-primary)] dark:bg-white/8 dark:text-white/75">
               Sandbox Notice
             </span>

@@ -20,10 +20,10 @@ export default function ClerqeLogo({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      <text x={cX} y="68" fontFamily="inherit" fontSize="64" fontWeight="600" fill="currentColor">C</text>
-      <text x={lX} y="68" fontFamily="inherit" fontSize="64" fontWeight="600" fill="currentColor">l</text>
-      <text x={e1X} y="68" fontFamily="inherit" fontSize="64" fontWeight="600" fill="currentColor">e</text>
-      <text x={rX} y="68" fontFamily="inherit" fontSize="64" fontWeight="600" fill="currentColor">r</text>
+      <text x={cX} y="68" fontFamily="inherit" fontSize="64" fontWeight="800" fill="currentColor">C</text>
+      <text x={lX} y="68" fontFamily="inherit" fontSize="64" fontWeight="800" fill="currentColor">l</text>
+      <text x={e1X} y="68" fontFamily="inherit" fontSize="64" fontWeight="800" fill="currentColor">e</text>
+      <text x={rX} y="68" fontFamily="inherit" fontSize="64" fontWeight="800" fill="currentColor">r</text>
       <g transform={`translate(${qTranslateX}, 4) scale(0.22)`}>
         <g fill="none" stroke="currentColor" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round">
           <path
@@ -40,7 +40,7 @@ export default function ClerqeLogo({ className }: { className?: string }) {
           />
         </g>
       </g>
-      <text x={e2X} y="68" fontFamily="inherit" fontSize="64" fontWeight="600" fill="currentColor">e</text>
+      <text x={e2X} y="68" fontFamily="inherit" fontSize="64" fontWeight="800" fill="currentColor">e</text>
     </svg>
   );
 }
