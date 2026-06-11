@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { BankingEvent } from "../types/events";
 import type {
   SessionInfo,
@@ -17,38 +17,60 @@ export function useSessionData(lastEvent: BankingEvent | null) {
   const [selectedSessionWorkflows, setSelectedSessionWorkflows] = useState<Workflow[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const sessionsOffsetRef = useRef(0);
+  const processedRef = useRef<BankingEvent | null>(null);
 
-  const type = `${lastEvent?.type || lastEvent?.event || lastEvent?.event_type || ""}`.toLowerCase();
+  useEffect(() => {
+    if (!lastEvent) return;
+    if (processedRef.current === lastEvent) return;
+    processedRef.current = lastEvent;
 
-  if (type === "sessions.list" && lastEvent?.payload) {
-    const p = lastEvent.payload as SessionsListPayload;
-    if (Array.isArray(p.sessions)) {
-      if (p.offset === 0) {
-        setSessions(p.sessions);
-      } else {
-        setSessions((prev) => [...prev, ...p.sessions]);
+    const type = `${lastEvent.type || lastEvent.event || lastEvent.event_type || ""}`.toLowerCase();
+
+    if (type === "sessions.list") {
+      const p = lastEvent.payload as SessionsListPayload | undefined;
+      if (p && Array.isArray(p.sessions)) {
+        if (p.offset === 0) {
+          setSessions(p.sessions);
+        } else {
+          setSessions((prev) => [...prev, ...p.sessions]);
+        }
+        setSessionsCount(p.count);
+        sessionsOffsetRef.current = p.offset + p.sessions.length;
       }
-      setSessionsCount(p.count);
-      sessionsOffsetRef.current = p.offset + p.sessions.length;
+      setSessionsLoading(false);
+      return;
     }
-    setSessionsLoading(false);
-  }
 
-  if (type === "session.messages" && lastEvent?.payload) {
-    const p = lastEvent.payload as SessionMessagesPayload;
-    if (Array.isArray(p.messages)) {
-      setSelectedSessionMessages(p.messages);
+    if (type === "session.messages") {
+      const p = lastEvent.payload as SessionMessagesPayload | undefined;
+      if (p && Array.isArray(p.messages)) {
+        setSelectedSessionMessages(p.messages);
+      }
+      setDataLoading(false);
+      return;
     }
-    setDataLoading(false);
-  }
 
-  if (type === "session.workflows" && lastEvent?.payload) {
-    const p = lastEvent.payload as WorkflowsPayload;
-    if (Array.isArray(p.workflows)) {
-      setSelectedSessionWorkflows(p.workflows);
+    if (type === "session.workflows") {
+      const p = lastEvent.payload as WorkflowsPayload | undefined;
+      if (p && Array.isArray(p.workflows)) {
+        setSelectedSessionWorkflows(p.workflows);
+      }
+      setDataLoading(false);
+      return;
     }
-    setDataLoading(false);
-  }
+  }, [lastEvent]);
+
+  useEffect(() => {
+    if (!sessionsLoading) return;
+    const timer = setTimeout(() => setSessionsLoading(false), 10000);
+    return () => clearTimeout(timer);
+  }, [sessionsLoading]);
+
+  useEffect(() => {
+    if (!dataLoading) return;
+    const timer = setTimeout(() => setDataLoading(false), 10000);
+    return () => clearTimeout(timer);
+  }, [dataLoading]);
 
   const resetSessionData = useCallback(() => {
     setSelectedSessionMessages([]);
