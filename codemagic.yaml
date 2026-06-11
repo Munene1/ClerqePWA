@@ -16,9 +16,10 @@ workflows:
       - npm ci
       - npm run build
       - npx cap sync android
-      - VERSION=$(node -e "console.log(require('./package.json').version)")
-      - VERSION_CODE=$(node -e "const [M,m,p]=require('./package.json').version.split('.').map(Number); console.log(M*10000+m*100+p)")
-      - cd android && ./gradlew assembleDebug -PversionCode=$VERSION_CODE -PversionName=$VERSION
+      - |
+        VERSION=$(node -e "console.log(require('./package.json').version)")
+        VERSION_CODE=$(node -e "const [M,m,p]=require('./package.json').version.split('.').map(Number); console.log(M*10000+m*100+p)")
+        cd android && ./gradlew assembleDebug -PversionCode=$VERSION_CODE -PversionName=$VERSION
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
       - android/app/build/outputs/apk/release/*.apk
