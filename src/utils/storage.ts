@@ -109,6 +109,20 @@ export const loadChatHistory = (
   };
 };
 
+const REMEMBERED_EMAIL_KEY = "clerqe_remembered_email";
+
+export const saveRememberedEmail = (email: string) => {
+  try { localStorage.setItem(REMEMBERED_EMAIL_KEY, email); } catch { /* ignore */ }
+};
+
+export const loadRememberedEmail = (): string | null => {
+  try { return localStorage.getItem(REMEMBERED_EMAIL_KEY); } catch { return null; }
+};
+
+export const clearRememberedEmail = () => {
+  try { localStorage.removeItem(REMEMBERED_EMAIL_KEY); } catch { /* ignore */ }
+};
+
 export const clearChatHistory = (customerId: string) => {
   try {
     localStorage.removeItem(`${CHAT_HISTORY_PREFIX}${customerId}`);

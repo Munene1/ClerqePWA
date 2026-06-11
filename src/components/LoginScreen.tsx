@@ -12,6 +12,8 @@ export default function LoginScreen(props: {
   authMessage?: string | null;
   fullName?: string;
   setFullName: (value: string) => void;
+  rememberedEmail?: string | null;
+  onClearRememberedEmail?: () => void;
   onSubmitIdentifier: () => void;
   onConfirmAccountCreation: (fullName: string) => void;
   onSubmitOtp: (otp: string) => void;
@@ -19,10 +21,43 @@ export default function LoginScreen(props: {
   onCancelFlow: () => void;
   onClearError: () => void;
 }) {
+  const maskEmail = (email: string) => {
+    const [name, domain] = email.split("@");
+    if (!domain) return email;
+    return `${name[0]}***@${domain}`;
+  };
 
-  const form = (
-    <div className="w-full max-w-sm text-left">
-      {props.authStep === "identifier" && (
+  const fieldset = (
+    <>
+      {props.rememberedEmail && props.authStep === "identifier" ? (
+        <div key="remembered" className="animate-fade-slide-in space-y-5">
+          <div className="rounded-[8px] border border-gray-200 bg-white/80 p-4 text-center dark:border-gray-700 dark:bg-white/5">
+            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 dark:text-gray-300" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M20 21a8 8 0 1 0-16 0" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{maskEmail(props.rememberedEmail)}</p>
+            <button
+              type="button"
+              onClick={() => { props.onClearRememberedEmail?.(); props.onClearError(); }}
+              className="mt-1 text-xs text-gray-500 underline-offset-2 hover:text-gray-700 hover:underline dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              Not you?
+            </button>
+          </div>
+
+          <button
+            onClick={() => { props.setIdentifier(props.rememberedEmail!); props.onSubmitIdentifier(); }}
+            disabled={props.loading}
+            className="flex w-full items-center justify-center gap-2 rounded-[3px] bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {props.loading && <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />}
+            {props.loading ? "Signing in..." : "Continue"}
+          </button>
+        </div>
+      ) : props.authStep === "identifier" ? (
         <form
           key="identifier"
           className="animate-fade-slide-in space-y-5"
@@ -50,18 +85,25 @@ export default function LoginScreen(props: {
           <button
             type="submit"
             disabled={props.loading || !props.identifier.trim()}
-            className="w-full rounded-[3px] bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[var(--brand-primary)] dark:text-white dark:hover:bg-[var(--brand-primary-hover)]"
+            className="flex w-full items-center justify-center gap-2 rounded-[3px] bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
           >
+            {props.loading && <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />}
             {props.loading ? "Signing in..." : "Continue"}
           </button>
 
           {props.error && (
-            <div className="rounded-[3px] border border-slate-900/8 bg-white/12 px-3 py-2.5 text-left text-[13px] leading-5 text-slate-700 backdrop-blur-[1px] dark:border-white/8 dark:bg-white/5 dark:text-slate-300">
+            <div className="rounded-[3px] border border-slate-900/8 bg-white/12 px-3 py-2.5 text-left text-[13px] leading-5 text-slate-700 backdrop-blur-[1px] animate-fade-in dark:border-white/8 dark:bg-white/5 dark:text-slate-300">
               {props.error}
             </div>
           )}
         </form>
-      )}
+      ) : null}
+    </>
+  );
+
+  const form = (
+    <div className="w-full max-w-sm text-left">
+      {fieldset}
 
       {props.authStep === "signup" && (
         <div key="signup" className="animate-fade-slide-in">
@@ -105,24 +147,9 @@ export default function LoginScreen(props: {
       <div className="pointer-events-none fixed bottom-[-5rem] left-[18%] h-80 w-80 rounded-full bg-white/22 blur-3xl dark:bg-[#0f2a27]/18" />
       <div className="relative flex grow flex-col items-center justify-center px-6 pb-[calc(1rem+var(--sab,0px))] pt-[calc(1.5rem+var(--sat,0px))]">
         <div className="flex w-full max-w-sm flex-col items-center text-center">
-          <ClerqeLogo className="mb-6 inline-block h-24" />
+          <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
           {form}
         </div>
-      </div>
-      <div className="relative mx-auto w-full max-w-sm px-6 pb-8 text-center">
-        <p className="text-sm font-medium leading-relaxed text-white/95 drop-shadow-[0_1px_1px_rgba(0,0,0,0.18)] dark:text-white/90">
-          Banking, but you can actually just{" "}
-          <em className="not-italic font-semibold text-white">talk</em>{" "}
-          to it. No forms, no phone trees, no tapping through a dozen menus just to pay a bill.
-        </p>
-        <a
-          href="https://clerqe.com/introducing-clerqe"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-block text-sm font-semibold text-white underline decoration-white/45 underline-offset-4 transition-colors hover:text-white hover:decoration-white dark:text-white/90 dark:decoration-white/40 dark:hover:text-white dark:hover:decoration-white"
-        >
-          Read the full story &rarr;
-        </a>
       </div>
     </div>
   );

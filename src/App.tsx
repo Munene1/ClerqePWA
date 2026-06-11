@@ -13,7 +13,7 @@ import { useBankingSocket } from "./hooks/useBankingSocket";
 import { useChatMessages } from "./hooks/useChatMessages";
 import { useInstallPrompt } from "./hooks/useInstallPrompt";
 import { getEventType } from "./utils/eventNormalize";
-import { loadChatHistory } from "./utils/storage";
+import { loadChatHistory, loadRememberedEmail, saveRememberedEmail, clearRememberedEmail } from "./utils/storage";
 
 export default function App() {
   const [identifier, setIdentifier] = useState("");
@@ -33,6 +33,9 @@ export default function App() {
   const [loadingOlderHistory, setLoadingOlderHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [enteringChat, setEnteringChat] = useState(false);
+  const [rememberedEmail, setRememberedEmail] = useState<string | null>(() => loadRememberedEmail());
   const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
     const saved = localStorage.getItem("banka_theme");
     if (saved === "light" || saved === "dark" || saved === "system") return saved;
@@ -48,10 +51,40 @@ export default function App() {
   const chat = useChatMessages(socket.lastEvent, sessionState.session?.customer_id);
   const installPrompt = useInstallPrompt();
   const forceLogin = socket.sessionExpired;
+  useEffect(() => {
+    if (sessionState.authenticated && identifier) {
+      saveRememberedEmail(identifier);
+      setRememberedEmail(identifier);
+    }
+  }, [sessionState.authenticated, identifier]);
+
+  const prevLoadingRef = useRef(sessionState.loading);
+
+  useEffect(() => {
+    const wasLoading = prevLoadingRef.current;
+    prevLoadingRef.current = sessionState.loading;
+    if (wasLoading && !sessionState.loading && sessionState.authenticated) {
+      setEnteringChat(true);
+      const t = setTimeout(() => setEnteringChat(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [sessionState.loading, sessionState.authenticated]);
+
   const handleLogout = () => {
-    socket.close();
-    sessionState.logout();
-    setIdentifier("");
+    if (loggingOut) return;
+    setLoggingOut(true);
+    if (identifier) saveRememberedEmail(identifier);
+    setTimeout(() => {
+      socket.close();
+      sessionState.logout();
+      setIdentifier("");
+      setLoggingOut(false);
+    }, 600);
+  };
+
+  const handleClearRememberedEmail = () => {
+    clearRememberedEmail();
+    setRememberedEmail(null);
   };
 
   const isLoggedIn = sessionState.authenticated && !forceLogin;
@@ -242,10 +275,24 @@ export default function App() {
   return (
     <div className="relative">
       {transitioning && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 dark:bg-black/90 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 animate-fade-in dark:bg-black/90">
           <div className="h-1 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
             <div className="h-full w-full animate-loading-pulse rounded-full bg-[var(--brand-primary)]" />
           </div>
+        </div>
+      )}
+
+      {loggingOut && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-white/95 backdrop-blur-sm animate-fade-in dark:bg-black/95">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-gray-600 dark:border-t-gray-200" />
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Logging out...</p>
+        </div>
+      )}
+
+      {enteringChat && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-white/95 backdrop-blur-sm animate-fade-in dark:bg-black/95">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-gray-600 dark:border-t-gray-200" />
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Signing you in...</p>
         </div>
       )}
 
@@ -310,6 +357,8 @@ export default function App() {
                   authMessage={sessionState.authMessage}
                   fullName={sessionState.fullName}
                   setFullName={sessionState.setFullName}
+                  rememberedEmail={rememberedEmail}
+                  onClearRememberedEmail={handleClearRememberedEmail}
                   onSubmitIdentifier={() => sessionState.login(identifier)}
                   onConfirmAccountCreation={sessionState.beginAccountCreation}
                   onSubmitOtp={sessionState.submitOtp}
