@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#000000"/>
-  <text x="256" y="268" text-anchor="middle" dominant-baseline="central" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="400" fill="#FFFFFF">Q</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="224" fill="#000000"/>
+  <circle cx="512" cy="512" r="370" fill="none" stroke="#FFFFFF" stroke-width="130"/>
+  <path d="M750 750 L920 920" fill="none" stroke="#FFFFFF" stroke-width="100" stroke-linecap="round"/>
 </svg>

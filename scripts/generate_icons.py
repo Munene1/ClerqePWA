@@ -1,9 +1,10 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 import os
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+# Target output sizes
 sizes = {
     "mdpi": 48,
     "hdpi": 72,
@@ -14,33 +15,66 @@ sizes = {
 
 
 def draw_q(draw, size):
+    """Draw a Q as a thick circle + tail at 4x supersampled resolution."""
     cx, cy = size // 2, size // 2
-    r = int(size * 0.38)
-    # Outer circle
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=WHITE)
-    # Inner circle (cutout) — makes a thick ring
-    ir = int(size * 0.18)
-    draw.ellipse([cx - ir, cy - ir, cx + ir, cy + ir], fill=BLACK)
-    # Q tail
-    t = int(size * 0.10)
+    # Q body: thick ring
+    outer_r = int(size * 0.36)
+    sw = int(size * 0.12)
+    inner_r = outer_r - sw
+    # Outer circle (filled)
+    draw.ellipse(
+        [cx - outer_r, cy - outer_r, cx + outer_r, cy + outer_r], fill=WHITE
+    )
+    # Inner cutout
+    draw.ellipse(
+        [cx - inner_r, cy - inner_r, cx + inner_r, cy + inner_r], fill=BLACK
+    )
+    # Q tail: thick diagonal line at bottom-right
+    tail_start = cx + int(outer_r * 0.52)
+    tail_end = cx + int(size * 0.46)
+    tsw = int(size * 0.09)
+    # We approximate with a rotated rectangle (polygon)
+    dx = tail_end - tail_start
+    dy = tail_end - tail_start
+    length = int((dx * dx + dy * dy) ** 0.5)
+    if length == 0:
+        return
+    # Unit vector perpendicular to the tail direction
+    perp_x = -dy / length
+    perp_y = dx / length
+    hw = tsw / 2
     pts = [
-        (cx + int(r * 0.55), cy + int(r * 0.55)),
-        (cx + int(r * 0.80), cy + int(r * 0.80)),
-        (cx + int(r * 0.70), cy + int(r * 0.85)),
-        (cx + int(r * 0.45), cy + int(r * 0.60)),
+        (tail_start + perp_x * hw, tail_start + perp_y * hw),
+        (tail_end + perp_x * hw, tail_end + perp_y * hw),
+        (tail_end - perp_x * hw, tail_end - perp_y * hw),
+        (tail_start - perp_x * hw, tail_start - perp_y * hw),
     ]
     draw.polygon(pts, fill=WHITE)
+    # Round caps: small circles at start and end of tail
+    cap_r = int(tsw / 2)
+    draw.ellipse(
+        [tail_start - cap_r, tail_start - cap_r, tail_start + cap_r, tail_start + cap_r],
+        fill=WHITE,
+    )
+    draw.ellipse(
+        [tail_end - cap_r, tail_end - cap_r, tail_end + cap_r, tail_end + cap_r],
+        fill=WHITE,
+    )
 
 
 root = "android/app/src/main/res"
+SCALE = 4  # Supersample factor
 
-for density, px in sizes.items():
+for density, target_px in sizes.items():
+    px = target_px * SCALE
     img = Image.new("RGBA", (px, px), BLACK)
     draw = ImageDraw.Draw(img)
     draw_q(draw, px)
+    # Downscale with high-quality resampling
+    img_resized = img.resize((target_px, target_px), Image.LANCZOS)
     for name in [f"ic_launcher.png", f"ic_launcher_round.png", f"ic_launcher_foreground.png"]:
         path = os.path.join(root, f"mipmap-{density}", name)
-        img.save(path)
+        img_resized.save(path)
         print(f"  {path}")
 
 bg_xml = '''<?xml version="1.0" encoding="utf-8"?>
