@@ -8,6 +8,7 @@ type SessionExpiredSubscriber = () => void;
 
 export class BankingSocketClient {
   private static readonly CONNECT_TIMEOUT_MS = 8000;
+  private static readonly PING_INTERVAL_MS = 15000;
   private socket: WebSocket | null = null;
   private state: SocketConnectionState = "idle";
   private listeners = new Set<Subscriber>();
@@ -21,6 +22,8 @@ export class BankingSocketClient {
   private token: string | null = null;
   private reconnectTimer: number | null = null;
   private connectTimeoutTimer: number | null = null;
+  private pingTimer: number | null = null;
+  private networkBound = false;
 
   subscribe(listener: Subscriber) {
     this.listeners.add(listener);
@@ -54,6 +57,7 @@ export class BankingSocketClient {
     this.consecutiveFailures = 0;
     this.manualClose = false;
     this.clearTimers();
+    this.bindNetworkEvents();
     this.open();
   }
 
@@ -200,6 +204,7 @@ export class BankingSocketClient {
     this.reconnectCount = 0;
     this.consecutiveFailures = 0;
     this.clearTimers();
+    this.unbindNetworkEvents();
     if (this.socket) {
       this.socket.close();
       this.socket = null;
@@ -236,9 +241,68 @@ export class BankingSocketClient {
     }
   }
 
+  private bindNetworkEvents() {
+    if (this.networkBound) return;
+    this.networkBound = true;
+
+    document.addEventListener("visibilitychange", this.handleVisibilityChange);
+
+    window.addEventListener("online", this.handleOnline);
+    window.addEventListener("offline", this.handleOffline);
+  }
+
+  private unbindNetworkEvents() {
+    this.networkBound = false;
+    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+    window.removeEventListener("online", this.handleOnline);
+    window.removeEventListener("offline", this.handleOffline);
+    this.stopPings();
+  }
+
+  private readonly handleVisibilityChange = () => {
+    if (document.hidden) {
+      this.startPings();
+    } else {
+      this.stopPings();
+      if (this.state === "disconnected" && !this.manualClose && this.consecutiveFailures < 15) {
+        this.reconnectCount = 0;
+        this.clearTimers();
+        this.open();
+      }
+    }
+  };
+
+  private readonly handleOnline = () => {
+    if (this.state !== "connected" && this.state !== "connecting" && !this.manualClose) {
+      this.reconnectCount = 0;
+      this.consecutiveFailures = 0;
+      this.clearTimers();
+      this.open();
+    }
+  };
+
+  private readonly handleOffline = () => {};
+
+  private startPings() {
+    this.stopPings();
+    this.pingTimer = window.setInterval(() => {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: "ping" }));
+      }
+    }, BankingSocketClient.PING_INTERVAL_MS);
+  }
+
+  private stopPings() {
+    if (this.pingTimer !== null) {
+      window.clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
+  }
+
   private clearTimers() {
     this.clearReconnectTimer();
     this.clearConnectTimeout();
+    this.stopPings();
   }
 
   send(data: Record<string, unknown>) {
@@ -255,6 +319,7 @@ export class BankingSocketClient {
     this.sessionId = null;
     this.token = null;
     this.clearTimers();
+    this.unbindNetworkEvents();
     if (this.socket) {
       this.socket.close();
       this.socket = null;
