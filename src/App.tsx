@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import ActivityPage from "./components/ActivityPage";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import IntroducingClerqe from "./components/IntroducingClerqe";
 import LoginScreen from "./components/LoginScreen";
+import SessionDetailPage from "./components/SessionDetailPage";
 import Sidebar from "./components/Sidebar";
 import ClerqeLogo from "./components/ClerqeLogo";
 import WelcomePopover from "./components/WelcomePopover";
+import { useSessionData } from "./hooks/useSessionData";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
 import { useChatMessages } from "./hooks/useChatMessages";
@@ -49,6 +50,7 @@ export default function App() {
     accessToken: sessionState.session?.access_token,
   });
   const chat = useChatMessages(socket.lastEvent, sessionState.session?.customer_id);
+  const sessionData = useSessionData(socket.lastEvent);
   const installPrompt = useInstallPrompt();
   const forceLogin = socket.sessionExpired;
   useEffect(() => {
@@ -296,17 +298,20 @@ export default function App() {
         </div>
       )}
 
-      {isLoggedIn && (
-        <>
-          <Sidebar
-            open={sidebarOpen}
-            theme={theme}
-            userName={userName}
-            userEmail={userEmail}
-            onClose={() => setSidebarOpen(false)}
-            onLogout={handleLogout}
-            onSetTheme={(t) => setTheme(t)}
-          />
+{isLoggedIn && (
+          <>
+            <Sidebar
+              open={sidebarOpen}
+              theme={theme}
+              userName={userName}
+              userEmail={userEmail}
+              sessions={sessionData.sessions}
+              sessionsLoading={sessionData.sessionsLoading}
+              onLoadSessions={() => { sessionData.setSessionsLoading(true); socket.listSessions(); }}
+              onClose={() => setSidebarOpen(false)}
+              onLogout={handleLogout}
+              onSetTheme={(t) => setTheme(t)}
+            />
           <div
             className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-1.5 py-1 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
             style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
@@ -329,8 +334,18 @@ export default function App() {
 
     <Routes>
       <Route path="/introducing-clerqe" element={<IntroducingClerqe />} />
-      <Route path="/activity" element={
-        isLoggedIn ? <ActivityPage onMenuOpen={() => setSidebarOpen(true)} /> : <Navigate to="/" replace />
+      <Route path="/sessions/:sessionId" element={
+        isLoggedIn ? (
+          <SessionDetailPage
+            lastEvent={socket.lastEvent}
+            onLoadSessionMessages={(sid) => { sessionData.setDataLoading(true); socket.loadSessionMessages(sid); }}
+            onLoadSessionWorkflows={(sid) => { sessionData.setDataLoading(true); socket.loadSessionWorkflows(sid); }}
+            selectedSessionMessages={sessionData.selectedSessionMessages}
+            selectedSessionWorkflows={sessionData.selectedSessionWorkflows}
+            dataLoading={sessionData.dataLoading}
+            onResetSessionData={sessionData.resetSessionData}
+          />
+        ) : <Navigate to="/" replace />
       } />
       <Route
         path="*"

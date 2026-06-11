@@ -8,6 +8,9 @@ export default function Sidebar(props: {
   theme: "light" | "dark" | "system";
   userName?: string;
   userEmail?: string;
+  sessions: import("../types/sessions").SessionInfo[];
+  sessionsLoading: boolean;
+  onLoadSessions: () => void;
   onClose: () => void;
   onLogout: () => void;
   onSetTheme: (theme: "light" | "dark" | "system") => void;
@@ -25,6 +28,12 @@ export default function Sidebar(props: {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [props.open]);
+
+  useEffect(() => {
+    if (props.open && props.sessions.length === 0 && !props.sessionsLoading) {
+      props.onLoadSessions();
+    }
   }, [props.open]);
 
   const themeOptions: { value: "light" | "dark" | "system"; label: string; icon: string }[] = [
@@ -58,25 +67,51 @@ export default function Sidebar(props: {
           <Icon name="forum" className="text-base" />
           <span>Assistant</span>
         </button>
-
-        <button
-          onClick={() => { navigate("/activity"); props.onClose(); }}
-          className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
-        >
-          <Icon name="history" className="text-base" />
-          <span>Activity</span>
-        </button>
       </nav>
 
       <div className="min-h-0 flex-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
-        <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
-          Session history
-        </p>
-        <div className="flex h-full max-h-[calc(100%-1.5rem)] flex-col overflow-y-auto">
-          <p className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-8 text-center">
-            <Icon name="history" className="text-lg text-gray-300 dark:text-gray-600" />
-            <span className="text-sm text-gray-400 dark:text-gray-500">No sessions yet</span>
+        <div className="mb-2 flex items-center justify-between px-3">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            Session history
           </p>
+          {props.sessions.length > 0 && (
+            <button
+              onClick={() => { navigate("/sessions/" + props.sessions[0].id); props.onClose(); }}
+              className="text-[11px] font-medium text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            >
+              View all
+            </button>
+          )}
+        </div>
+        <div className="flex h-full max-h-[calc(100%-1.5rem)] flex-col overflow-y-auto">
+          {props.sessionsLoading && props.sessions.length === 0 && (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" />
+            </div>
+          )}
+          {!props.sessionsLoading && props.sessions.length === 0 && (
+            <p className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-8 text-center">
+              <Icon name="history" className="text-lg text-gray-300 dark:text-gray-600" />
+              <span className="text-sm text-gray-400 dark:text-gray-500">No sessions yet</span>
+            </p>
+          )}
+          {props.sessions.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
+              className="flex w-full items-start gap-3 rounded-[3px] px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
+            >
+              <Icon name="forum" className="mt-0.5 text-sm text-gray-400" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {s.last_message?.content || "Session " + s.id.slice(0, 8)}
+                </p>
+                <p className="mt-0.5 text-[11px] text-gray-400 dark:text-gray-500">
+                  {new Date(s.started_at).toLocaleDateString()} &middot; {s.status}
+                </p>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 

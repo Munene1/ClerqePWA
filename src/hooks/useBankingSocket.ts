@@ -87,6 +87,15 @@ export function useBankingSocket(params: {
           },
         });
       },
+      listSessions(limit = 20, offset = 0) {
+        clientRef.current?.send({ type: "sessions.list", payload: { limit, offset } });
+      },
+      loadSessionMessages(sessionId: string, limit = 50, offset = 0) {
+        clientRef.current?.send({ type: "session.messages", payload: { session_id: sessionId, limit, offset } });
+      },
+      loadSessionWorkflows(sessionId: string) {
+        clientRef.current?.send({ type: "session.workflows", payload: { session_id: sessionId } });
+      },
       close() {
         clientRef.current?.close();
       },
