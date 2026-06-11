@@ -142,9 +142,7 @@ export default function LoginScreen(props: {
   );
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-y-auto bg-[linear-gradient(180deg,_#ffffff_0%,_#eef5f5_20%,_#c6dddd_48%,_#6e9fa1_74%,_#1c666c_90%,_#0f5258_100%)] dark:bg-[linear-gradient(180deg,_#020907_0%,_#051412_34%,_#0a211e_68%,_#102f2b_100%)]">
-      <div className="pointer-events-none fixed right-[-4rem] top-[-2rem] h-96 w-96 rounded-full bg-[#77b3b3]/16 blur-3xl dark:bg-[#3a6763]/12" />
-      <div className="pointer-events-none fixed bottom-[-5rem] left-[18%] h-80 w-80 rounded-full bg-white/22 blur-3xl dark:bg-[#0f2a27]/18" />
+    <div className="relative flex min-h-dvh flex-col overflow-y-auto bg-black">
       <div className="relative flex grow flex-col items-center justify-center px-6 pb-[calc(1rem+var(--sab,0px))] pt-[calc(1.5rem+var(--sat,0px))]">
         <div className="flex w-full max-w-sm flex-col items-center text-center">
           <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
