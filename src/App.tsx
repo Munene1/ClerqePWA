@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import ActivityPage from "./components/ActivityPage";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import IntroducingClerqe from "./components/IntroducingClerqe";
@@ -52,6 +53,10 @@ export default function App() {
     sessionState.logout();
     setIdentifier("");
   };
+
+  const isLoggedIn = sessionState.authenticated && !forceLogin;
+  const userName = (sessionState.session?.customer as Record<string, unknown> | undefined)?.name as string | undefined || sessionState.fullName || undefined;
+  const userEmail = (sessionState.session?.customer as Record<string, unknown> | undefined)?.email as string | undefined;
   const historyLoadedSessionRef = useRef<string | null>(null);
   const historyRequestOffsetRef = useRef<number | null>(null);
   const lastSessionIdRef = useRef<string | null>(null);
@@ -243,8 +248,43 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {isLoggedIn && (
+        <>
+          <Sidebar
+            open={sidebarOpen}
+            theme={theme}
+            userName={userName}
+            userEmail={userEmail}
+            onClose={() => setSidebarOpen(false)}
+            onLogout={handleLogout}
+            onSetTheme={(t) => setTheme(t)}
+          />
+          <div
+            className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-1.5 py-1 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
+            style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
+          >
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
+              aria-label="Open menu"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="14" y2="18" />
+              </svg>
+            </button>
+            <ClerqeLogo className="h-8 text-gray-700 dark:text-gray-300" />
+          </div>
+        </>
+      )}
+
     <Routes>
       <Route path="/introducing-clerqe" element={<IntroducingClerqe />} />
+      <Route path="/activity" element={
+        isLoggedIn ? <ActivityPage onMenuOpen={() => setSidebarOpen(true)} /> : <Navigate to="/" replace />
+      } />
       <Route
         path="*"
         element={
@@ -282,30 +322,6 @@ export default function App() {
             </div>
           ) : (
             <div key="chat" className="animate-fade-in">
-              <Sidebar
-                open={sidebarOpen}
-                theme={theme}
-                onClose={() => setSidebarOpen(false)}
-                onLogout={handleLogout}
-                onSetTheme={(t) => setTheme(t)}
-              />
-              <div
-          className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-1.5 py-1 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
-          style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
-        >
-          <button
-        onClick={() => setSidebarOpen(true)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
-        aria-label="Open menu"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <line x1="4" y1="6" x2="20" y2="6" />
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <line x1="4" y1="18" x2="14" y2="18" />
-        </svg>
-      </button>
-      <ClerqeLogo className="h-8 text-gray-700 dark:text-gray-300" />
-      </div>
       <ChatScreen
         connectionState={socket.connectionState}
         reconnectFailed={socket.reconnectFailed}

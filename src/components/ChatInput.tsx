@@ -22,7 +22,7 @@ export default function ChatInput({
   const showSend = text.trim().length > 0;
 
   return (
-    <div className="mx-3 mb-3 flex items-end gap-1.5 rounded-full border border-black/6 bg-white/96 px-5 py-2 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-gray-800 dark:bg-black/96 dark:shadow-[0_14px_34px_rgba(0,0,0,0.34)]">
+    <div className="mx-3 mb-3 flex items-end gap-1.5 rounded-full border border-black/6 bg-white/96 px-5 py-2 shadow-[0_8px_32px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-gray-800 dark:bg-black/96 dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
