@@ -15,7 +15,7 @@ export default function IntroducingClerqe() {
       {/* Mobile-full / desktop-fixed wrapper */}
       <div className="mx-auto w-full max-w-3xl px-0 sm:px-5">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-black/95 sm:relative sm:mb-8 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none dark:sm:bg-transparent">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-black/95 sm:relative sm:mb-8 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none dark:sm:bg-transparent pt-[var(--sat,0px)] sm:pt-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/")}

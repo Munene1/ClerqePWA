@@ -116,7 +116,9 @@ export default function LoginScreen(props: {
           to it. No forms, no phone trees, no tapping through a dozen menus just to pay a bill.
         </p>
         <a
-          href="/introducing-clerqe"
+          href="https://clerqe.com/introducing-clerqe"
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-2 inline-block text-sm font-semibold text-white underline decoration-white/45 underline-offset-4 transition-colors hover:text-white hover:decoration-white dark:text-white/90 dark:decoration-white/40 dark:hover:text-white dark:hover:decoration-white"
         >
           Read the full story &rarr;
