@@ -142,7 +142,7 @@ export default function LoginScreen(props: {
   );
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-y-auto bg-black">
+    <div className="relative flex min-h-dvh flex-col overflow-y-auto bg-white dark:bg-black">
       <div className="relative flex grow flex-col items-center justify-center px-6 pb-[calc(1rem+var(--sab,0px))] pt-[calc(1.5rem+var(--sat,0px))]">
         <div className="flex w-full max-w-sm flex-col items-center text-center">
           <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
