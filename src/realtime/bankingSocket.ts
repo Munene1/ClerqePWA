@@ -16,13 +16,13 @@ export class BankingSocketClient {
   private sessionExpiredListeners = new Set<SessionExpiredSubscriber>();
   private reconnectCount = 0;
   private consecutiveFailures = 0;
-  private maxReconnects = 3;
   private manualClose = false;
   private sessionId: string | null = null;
   private token: string | null = null;
   private reconnectTimer: number | null = null;
   private connectTimeoutTimer: number | null = null;
   private pingTimer: number | null = null;
+  private networkCheckTimer: number | null = null;
   private networkBound = false;
 
   subscribe(listener: Subscriber) {
@@ -216,11 +216,7 @@ export class BankingSocketClient {
   private scheduleReconnect() {
     if (this.manualClose || !this.sessionId || !this.token) return;
     this.reconnectCount += 1;
-    if (this.reconnectCount > this.maxReconnects) {
-      this.setState("reconnect_failed");
-      return;
-    }
-    const delay = Math.min(1000 * 2 ** (this.reconnectCount - 1), 10000);
+    const delay = Math.min(1000 * 2 ** (this.reconnectCount - 1), 30000);
     this.clearReconnectTimer();
     this.reconnectTimer = window.setTimeout(() => {
       if (!this.manualClose) this.open();
@@ -249,6 +245,7 @@ export class BankingSocketClient {
 
     window.addEventListener("online", this.handleOnline);
     window.addEventListener("offline", this.handleOffline);
+    this.startNetworkCheck();
   }
 
   private unbindNetworkEvents() {
@@ -257,6 +254,7 @@ export class BankingSocketClient {
     window.removeEventListener("online", this.handleOnline);
     window.removeEventListener("offline", this.handleOffline);
     this.stopPings();
+    this.stopNetworkCheck();
   }
 
   private readonly handleVisibilityChange = () => {
@@ -264,24 +262,41 @@ export class BankingSocketClient {
       this.startPings();
     } else {
       this.stopPings();
-      if (this.state === "disconnected" && !this.manualClose && this.consecutiveFailures < 15) {
-        this.reconnectCount = 0;
-        this.clearTimers();
-        this.open();
-      }
+      this.tryImmediateReconnect();
     }
   };
 
   private readonly handleOnline = () => {
-    if (this.state !== "connected" && this.state !== "connecting" && !this.manualClose) {
+    this.tryImmediateReconnect();
+  };
+
+  private readonly handleOffline = () => {};
+
+  private tryImmediateReconnect() {
+    if (this.state !== "connected" && this.state !== "connecting" && !this.manualClose && this.consecutiveFailures < 15) {
       this.reconnectCount = 0;
       this.consecutiveFailures = 0;
       this.clearTimers();
       this.open();
     }
-  };
+  }
 
-  private readonly handleOffline = () => {};
+  private startNetworkCheck() {
+    this.stopNetworkCheck();
+    this.networkCheckTimer = window.setInterval(() => {
+      if (this.manualClose) return;
+      if (this.state === "connected" || this.state === "connecting") return;
+      if (navigator.onLine === false) return;
+      this.tryImmediateReconnect();
+    }, 10000);
+  }
+
+  private stopNetworkCheck() {
+    if (this.networkCheckTimer !== null) {
+      window.clearInterval(this.networkCheckTimer);
+      this.networkCheckTimer = null;
+    }
+  }
 
   private startPings() {
     this.stopPings();
