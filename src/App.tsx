@@ -307,7 +307,7 @@ export default function App() {
               userEmail={userEmail}
               sessions={sessionData.sessions}
               sessionsLoading={sessionData.sessionsLoading}
-              onLoadSessions={() => { sessionData.setSessionsLoading(true); socket.listSessions(); }}
+              onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
               onClose={() => setSidebarOpen(false)}
               onLogout={handleLogout}
               onSetTheme={(t) => setTheme(t)}
@@ -374,7 +374,7 @@ export default function App() {
                   setFullName={sessionState.setFullName}
                   rememberedEmail={rememberedEmail}
                   onClearRememberedEmail={handleClearRememberedEmail}
-                  onSubmitIdentifier={() => sessionState.login(identifier)}
+                  onSubmitIdentifier={(email) => sessionState.login(email ?? identifier)}
                   onConfirmAccountCreation={sessionState.beginAccountCreation}
                   onSubmitOtp={sessionState.submitOtp}
                   onSubmitPinSetup={sessionState.submitPinSetup}

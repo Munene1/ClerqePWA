@@ -14,7 +14,7 @@ export default function LoginScreen(props: {
   setFullName: (value: string) => void;
   rememberedEmail?: string | null;
   onClearRememberedEmail?: () => void;
-  onSubmitIdentifier: () => void;
+  onSubmitIdentifier: (email?: string) => void;
   onConfirmAccountCreation: (fullName: string) => void;
   onSubmitOtp: (otp: string) => void;
   onSubmitPinSetup: (pin: string, confirmPin: string) => void;
@@ -49,7 +49,7 @@ export default function LoginScreen(props: {
           </div>
 
           <button
-            onClick={() => { props.setIdentifier(props.rememberedEmail!); props.onSubmitIdentifier(); }}
+            onClick={() => { props.onSubmitIdentifier(props.rememberedEmail!); }}
             disabled={props.loading}
             className="flex w-full items-center justify-center gap-2 rounded-[3px] bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -64,7 +64,7 @@ export default function LoginScreen(props: {
           onSubmit={(e) => {
             e.preventDefault();
             if (props.loading || !props.identifier.trim()) return;
-            props.onSubmitIdentifier();
+             props.onSubmitIdentifier(props.identifier);
           }}
         >
           <div>
