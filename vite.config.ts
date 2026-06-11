@@ -16,6 +16,7 @@ export default defineConfig({
         name: "Clerqe - AI Banking Agent",
         short_name: "Clerqe",
         description: "Intelligent banking assistant powered by AI",
+        version: process.env.npm_package_version || "1.0.0",
         start_url: "/",
         display: "standalone",
         background_color: "#000000",
