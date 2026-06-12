@@ -43,10 +43,22 @@ function extractMessageFromValue(value: unknown): string | null {
   return null;
 }
 
+const NETWORK_ERROR_PATTERNS = [
+  "failed to fetch", "networkerror", "network error",
+  "failed to connect", "err_connection", "net::err",
+  "unable to connect", "could not connect", "fetch failed",
+  "enetunreach", "etimedout", "econnrefused", "econnreset",
+];
+
+function isNetworkError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return NETWORK_ERROR_PATTERNS.some((p) => lower.includes(p));
+}
+
 export function extractApiErrorMessage(error: unknown, fallback = "Something went wrong. Please try again.") {
   if (error instanceof Error) {
     const message = error.message?.trim();
-    if (message && message.toLowerCase() !== "failed to fetch") return message;
+    if (message && !isNetworkError(message)) return message;
     return "We couldn't reach the server. Please check the connection and try again.";
   }
   return fallback;
