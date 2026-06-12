@@ -73,8 +73,8 @@ export default function Sidebar(props: {
         props.open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-        <ClerqeLogo className="h-12 text-gray-700 dark:text-gray-300" />
+      <div className="sticky top-0 z-10 flex items-center justify-between bg-white px-3 py-2.5 dark:bg-black">
+        <ClerqeLogo className="h-10 text-gray-700 dark:text-gray-300" />
         <button
           onClick={props.onClose}
           className="rounded-[3px] p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
@@ -83,117 +83,108 @@ export default function Sidebar(props: {
         </button>
       </div>
 
-      <nav className="shrink-0 space-y-1 px-2 py-3">
-        <button
-          onClick={() => { navigate("/"); props.onClose(); }}
-          className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
-        >
-          <Icon name="forum" className="text-base" />
-          <span>Assistant</span>
-        </button>
-      </nav>
-
-      <div className="min-h-0 flex-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
-        <div className="mb-2 flex items-center justify-between px-3">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
-            Session history
-          </p>
-          {props.sessions.length > 0 && (
-            <button
-              onClick={() => { navigate("/sessions/" + props.sessions[0].id); props.onClose(); }}
-              className="text-[11px] font-medium text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-            >
-              View all
-            </button>
-          )}
-        </div>
-        <div className="flex h-full max-h-[calc(100%-1.5rem)] flex-col overflow-y-auto">
-          {props.sessionsLoading && props.sessions.length === 0 && (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" />
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex min-h-full flex-col">
+          <div className="flex-1">
+            <div className="px-2 pt-1 pb-0.5">
+              <button
+                onClick={() => { navigate("/"); props.onClose(); }}
+                className="flex w-full items-center gap-2.5 rounded-[3px] px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
+              >
+                <Icon name="forum" className="text-base" />
+                <span>Assistant</span>
+              </button>
             </div>
-          )}
-          {!props.sessionsLoading && props.sessions.length === 0 && (
-            <p className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-8 text-center">
-              <span className="text-sm text-gray-400 dark:text-gray-500">No sessions yet</span>
-            </p>
-          )}
-          {grouped.map(([dateKey, dateSessions]) => (
-            <div key={dateKey}>
-              <div className="relative flex items-center py-1 px-3">
-                <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
-                <span className="mx-4 text-[11px] font-medium text-gray-400 dark:text-gray-500">
-                  {getDateLabel(new Date(dateKey))}
-                </span>
-                <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
-              </div>
-              {dateSessions.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
-                  className="flex w-full items-start gap-2 rounded-[3px] px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {s.last_message?.content || "Session " + s.id.slice(0, 8)}
-                    </p>
-                  </div>
-                </button>
+
+            <div className="px-2 pb-1">
+              <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                Session history
+              </p>
+
+              {props.sessionsLoading && props.sessions.length === 0 && (
+                <div className="flex items-center justify-center py-6">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" />
+                </div>
+              )}
+
+              {!props.sessionsLoading && props.sessions.length === 0 && (
+                <p className="px-3 py-6 text-sm text-gray-400 dark:text-gray-500">No sessions yet</p>
+              )}
+
+              {grouped.map(([dateKey, dateSessions]) => (
+                <div key={dateKey}>
+                  <p className="px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500">
+                    {getDateLabel(new Date(dateKey))}
+                  </p>
+                  {dateSessions.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
+                      className="flex w-full items-start rounded-[3px] px-3 py-2 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
+                    >
+                      <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {s.last_message?.content || "Session " + s.id.slice(0, 8)}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="shrink-0 space-y-1 border-t border-gray-200 px-2 py-3 dark:border-gray-800">
-        <button
-          onClick={() => setThemeOpen(!themeOpen)}
-          className="flex w-full items-center gap-3 rounded-[3px] px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
-        >
-          <Icon name={props.theme === "dark" ? "dark_mode" : props.theme === "system" ? "settings" : "light_mode"} className="text-base" />
-          <span className="flex-1 text-left">{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
-          <Icon name="arrow_back" className={`text-base transition-transform duration-200 ${themeOpen ? "-rotate-90" : "rotate-180"}`} />
-        </button>
-
-        {themeOpen && (
-          <div className="ml-2 space-y-0.5 border-l border-gray-200 pl-2 dark:border-gray-800">
-            {themeOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => { props.onSetTheme(opt.value); props.onClose(); }}
-                className={`flex w-full items-center gap-3 rounded-[3px] px-3 py-2 text-sm transition-colors ${
-                  props.theme === opt.value
-                    ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)] dark:bg-white/5 dark:text-white/80"
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
-                }`}
-              >
-                <Icon name={opt.icon} className="text-sm" />
-                <span>{opt.label}</span>
-              </button>
-            ))}
           </div>
-        )}
-      </div>
 
-      <div className="flex shrink-0 items-center gap-3 border-t border-gray-200 bg-gray-100 px-4 py-3 dark:border-gray-800 dark:bg-[#111]">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-          <Icon name="account_circle" className="text-base" />
+          <div className="shrink-0">
+            <div className="px-2 py-0.5">
+              <button
+                onClick={() => setThemeOpen(!themeOpen)}
+                className="flex w-full items-center gap-2.5 rounded-[3px] px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
+              >
+                <Icon name={props.theme === "dark" ? "dark_mode" : props.theme === "system" ? "settings" : "light_mode"} className="text-base" />
+                <span className="flex-1 text-left">{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
+                <Icon name="arrow_back" className={`text-base text-gray-400 transition-transform duration-200 ${themeOpen ? "-rotate-90" : "rotate-180"}`} />
+              </button>
+
+              {themeOpen && (
+                <div className="ml-1 space-y-0.5 pl-2">
+                  {themeOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { props.onSetTheme(opt.value); props.onClose(); }}
+                      className={`flex w-full items-center gap-2.5 rounded-[3px] px-3 py-1.5 text-sm transition-colors ${
+                        props.theme === opt.value
+                          ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)] dark:bg-white/5 dark:text-white/80"
+                          : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                      }`}
+                    >
+                      <Icon name={opt.icon} className="text-sm" />
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                <Icon name="account_circle" className="text-base" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {props.userName || "User"}
+                </p>
+                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                  {props.userEmail || ""}
+                </p>
+              </div>
+              <button
+                onClick={() => { props.onLogout(); props.onClose(); }}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[3px] text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+                title="Logout"
+              >
+                <Icon name="logout" className="text-base" />
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-            {props.userName || "User"}
-          </p>
-          <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-            {props.userEmail || ""}
-          </p>
-        </div>
-        <button
-          onClick={() => { props.onLogout(); props.onClose(); }}
-          className="flex h-8 w-8 items-center justify-center rounded-[3px] text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-          title="Logout"
-        >
-          <Icon name="logout" className="text-base" />
-        </button>
       </div>
     </aside>
   );
