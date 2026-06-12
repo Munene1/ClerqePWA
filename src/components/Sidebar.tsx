@@ -143,7 +143,7 @@ export default function Sidebar(props: {
         </div>
 
         <div
-          className={`absolute bottom-0 left-0 right-0 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-0 left-0 right-0 bg-gray-50 transition-transform duration-300 ease-out dark:bg-[#111] ${
             scrolled ? "translate-y-full" : ""
           }`}
         >
