@@ -18,7 +18,7 @@ workflows:
       - npx cap sync android
       - |
         VERSION=$(node -e "console.log(require('./package.json').version)")
-        VERSION_CODE=$(node -e "const [M,m,p]=require('./package.json').version.split('.').map(Number); console.log(M*10000+m*100+p)")
+        VERSION_CODE=${PROJECT_BUILD_NUMBER:-$(node -e "const d=new Date(); console.log(d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate())")}
         cd android && ./gradlew assembleDebug -PversionCode=$VERSION_CODE -PversionName=$VERSION
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
