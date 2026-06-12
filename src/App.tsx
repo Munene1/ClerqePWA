@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
-import IntroducingClerqe from "./components/IntroducingClerqe";
 import LoginScreen from "./components/LoginScreen";
+
+const IntroducingClerqe = lazy(() => import("./components/IntroducingClerqe"));
 import SessionDetailPage from "./components/SessionDetailPage";
 import Sidebar from "./components/Sidebar";
 import ClerqeLogo from "./components/ClerqeLogo";
@@ -89,6 +90,7 @@ export default function App() {
     setRememberedEmail(null);
   };
 
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone || !!(window as any).Capacitor?.isNative;
   const isLoggedIn = sessionState.authenticated && !forceLogin;
   const userName = (sessionState.session?.customer as Record<string, unknown> | undefined)?.name as string | undefined || sessionState.fullName || undefined;
   const userEmail = (sessionState.session?.customer as Record<string, unknown> | undefined)?.email as string | undefined;
@@ -343,7 +345,6 @@ export default function App() {
       )}
 
     <Routes>
-      <Route path="/introducing-clerqe" element={<IntroducingClerqe />} />
       <Route path="/sessions/:sessionId" element={
         isLoggedIn ? (
           <SessionDetailPage
@@ -357,44 +358,13 @@ export default function App() {
           />
         ) : <Navigate to="/" replace />
       } />
+      <Route path="/introducing-clerqe" element={
+        isStandalone ? <Navigate to="/" replace /> : <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}><IntroducingClerqe /></Suspense>
+      } />
       <Route
         path="*"
         element={
-          !sessionState.authenticated || forceLogin ? (
-            <div key="login" className="animate-fade-in">
-              <>
-              {signupNoticeVisible && (
-                <div className="pointer-events-none fixed left-1/2 top-3 z-[70] w-[min(92vw,32rem)] -translate-x-1/2 animate-toast-slide-in">
-                  <div className="rounded-[6px] border border-black/8 bg-white px-4 py-3 text-sm leading-5 text-slate-700 shadow-[0_10px_30px_rgba(15,82,88,0.10)] dark:border-white/10 dark:bg-white dark:text-slate-800">
-                    We couldn&apos;t find an account for that email. Read the short notice, then continue to create one.
-                  </div>
-                </div>
-              )}
-              {sessionState.preSignupWelcome ? (
-                <WelcomePopover onDismiss={sessionState.dismissPreSignupWelcome} />
-              ) : (
-                <LoginScreen
-                  identifier={identifier}
-                  setIdentifier={setIdentifier}
-                  loading={sessionState.loading}
-                  error={forceLogin ? "Your session expired. Please sign in again." : sessionState.error}
-                  authStep={sessionState.authStep}
-                  authMessage={sessionState.authMessage}
-                  fullName={sessionState.fullName}
-                  setFullName={sessionState.setFullName}
-                  rememberedEmail={rememberedEmail}
-                  onClearRememberedEmail={handleClearRememberedEmail}
-                  onSubmitIdentifier={(email) => sessionState.login(email ?? identifier)}
-                  onConfirmAccountCreation={sessionState.beginAccountCreation}
-                  onSubmitOtp={sessionState.submitOtp}
-                  onSubmitPinSetup={sessionState.submitPinSetup}
-                  onCancelFlow={sessionState.cancelAccountCreation}
-                  onClearError={sessionState.clearError}
-                />
-              )}
-              </>
-            </div>
-          ) : (
+          sessionState.authenticated && !forceLogin ? (
             <div key="chat" className="animate-fade-in">
       <ChatScreen
         connectionState={socket.connectionState}
@@ -455,6 +425,43 @@ export default function App() {
           onDismiss={() => installPrompt.setDismissed(true)}
         />
       )}
+            </div>
+          ) : (
+            <div key="login" className="animate-fade-in">
+              <>
+              {signupNoticeVisible && (
+                <div className="pointer-events-none fixed left-1/2 top-3 z-[70] w-[min(92vw,32rem)] -translate-x-1/2 animate-toast-slide-in">
+                  <div className="rounded-[6px] border border-black/8 bg-white px-4 py-3 text-sm leading-5 text-slate-700 shadow-[0_10px_30px_rgba(15,82,88,0.10)] dark:border-white/10 dark:bg-white dark:text-slate-800">
+                    We couldn&apos;t find an account for that email. Read the short notice, then continue to create one.
+                  </div>
+                </div>
+              )}
+              {sessionState.preSignupWelcome ? (
+                <WelcomePopover onDismiss={sessionState.dismissPreSignupWelcome} />
+              ) : isStandalone || forceLogin ? (
+                <LoginScreen
+                  isStandalone={true}
+                  identifier={identifier}
+                  setIdentifier={setIdentifier}
+                  loading={sessionState.loading}
+                  error={forceLogin ? "Your session expired. Please sign in again." : sessionState.error}
+                  authStep={sessionState.authStep}
+                  authMessage={sessionState.authMessage}
+                  fullName={sessionState.fullName}
+                  setFullName={sessionState.setFullName}
+                  rememberedEmail={rememberedEmail}
+                  onClearRememberedEmail={handleClearRememberedEmail}
+                  onSubmitIdentifier={(email) => sessionState.login(email ?? identifier)}
+                  onConfirmAccountCreation={sessionState.beginAccountCreation}
+                  onSubmitOtp={sessionState.submitOtp}
+                  onSubmitPinSetup={sessionState.submitPinSetup}
+                  onCancelFlow={sessionState.cancelAccountCreation}
+                  onClearError={sessionState.clearError}
+                />
+              ) : (
+                <Navigate to="/introducing-clerqe" replace />
+              )}
+              </>
             </div>
           )
         }

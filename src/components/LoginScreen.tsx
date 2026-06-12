@@ -4,6 +4,7 @@ import OtpVerificationCard from "./OtpVerificationCard";
 import PinSetupCard from "./PinSetupCard";
 
 export default function LoginScreen(props: {
+  isStandalone?: boolean;
   identifier: string;
   setIdentifier: (value: string) => void;
   loading: boolean;
@@ -147,6 +148,14 @@ export default function LoginScreen(props: {
         <div className="flex w-full max-w-sm flex-col items-center text-center">
           <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
           {form}
+          {props.isStandalone && props.authStep === "identifier" && (
+            <button
+              onClick={() => window.open("https://clerqe.com/introducing-clerqe", "_blank")}
+              className="mt-4 text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300"
+            >
+              Read the story
+            </button>
+          )}
         </div>
       </div>
     </div>
