@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/pwa-icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" id="favicon" />
+    <link rel="apple-touch-icon" href="/pwa-icon-dark.svg" id="apple-touch-icon" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
@@ -16,6 +16,22 @@
     <title>Clerqe - AI Banking Agent</title>
     <script>
       (function () {
+        var favIcon = document.getElementById("favicon");
+        var appleIcon = document.getElementById("apple-touch-icon");
+        function setThemeIcons(isDark) {
+          if (favIcon) favIcon.href = isDark ? "/favicon-dark.svg" : "/favicon-light.svg";
+          if (appleIcon) appleIcon.href = isDark ? "/pwa-icon-dark.svg" : "/pwa-icon-light.svg";
+        }
+        try {
+          var savedTheme = localStorage.getItem("banka_theme");
+          if (savedTheme === "light") { setThemeIcons(false); }
+          else if (savedTheme === "dark") { setThemeIcons(true); }
+          else {
+            var mq = window.matchMedia("(prefers-color-scheme: dark)");
+            setThemeIcons(mq.matches);
+            mq.addEventListener("change", function (e) { setThemeIcons(e.matches); });
+          }
+        } catch (e) {}
         try {
           var raw = localStorage.getItem("banking_pwa_session");
           if (!raw) return;

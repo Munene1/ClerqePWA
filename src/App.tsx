@@ -142,6 +142,13 @@ export default function App() {
     return pref;
   };
 
+  const setThemeIcons = (isDark: boolean) => {
+    const fav = document.getElementById("favicon") as HTMLLinkElement | null;
+    const apple = document.getElementById("apple-touch-icon") as HTMLLinkElement | null;
+    if (fav) fav.href = isDark ? "/favicon-dark.svg" : "/favicon-light.svg";
+    if (apple) apple.href = isDark ? "/pwa-icon-dark.svg" : "/pwa-icon-light.svg";
+  };
+
   useEffect(() => {
     const resolved = resolveTheme(theme);
     document.documentElement.classList.remove("light", "dark");
@@ -151,6 +158,7 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", resolved);
     document.body.setAttribute("data-theme", resolved);
     localStorage.setItem("banka_theme", theme);
+    setThemeIcons(resolved === "dark");
 
     const meta = document.querySelector("meta[name=theme-color]");
     if (meta) {

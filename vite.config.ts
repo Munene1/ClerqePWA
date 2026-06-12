@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "pwa-icon.svg"],
+      includeAssets: ["favicon-dark.svg", "favicon-light.svg", "pwa-icon-dark.svg", "pwa-icon-light.svg"],
       manifest: {
         name: "Clerqe - AI Banking Agent",
         short_name: "Clerqe",
@@ -25,7 +25,7 @@ export default defineConfig({
         orientation: "portrait",
         icons: [
           {
-            src: "/pwa-icon.svg",
+            src: "/pwa-icon-dark.svg",
             sizes: "any",
             type: "image/svg+xml",
             purpose: "any maskable",
