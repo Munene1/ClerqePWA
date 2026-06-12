@@ -18,8 +18,8 @@ def draw_q(draw, size):
     """Draw a Q as a thick circle + tail at 4x supersampled resolution."""
     cx, cy = size // 2, size // 2
     # Q body: thick ring
-    outer_r = int(size * 0.36)
-    sw = int(size * 0.12)
+    outer_r = int(size * 0.23)
+    sw = int(size * 0.075)
     inner_r = outer_r - sw
     # Outer circle (filled)
     draw.ellipse(
@@ -30,9 +30,9 @@ def draw_q(draw, size):
         [cx - inner_r, cy - inner_r, cx + inner_r, cy + inner_r], fill=BLACK
     )
     # Q tail: thick diagonal line at bottom-right
-    tail_start = cx + int(outer_r * 0.52)
-    tail_end = cx + int(size * 0.46)
-    tsw = int(size * 0.09)
+    tail_start = cx + int(outer_r * 0.55)
+    tail_end = cx + int(size * 0.26)
+    tsw = int(size * 0.065)
     # We approximate with a rotated rectangle (polygon)
     dx = tail_end - tail_start
     dy = tail_end - tail_start
