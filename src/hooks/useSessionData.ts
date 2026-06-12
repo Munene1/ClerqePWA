@@ -77,16 +77,28 @@ export function useSessionData(lastEvent: BankingEvent | null) {
     setSelectedSessionWorkflows([]);
   }, []);
 
+  const resetSessions = useCallback(() => {
+    setSessions([]);
+    setSessionsCount(0);
+    setSelectedSessionMessages([]);
+    setSelectedSessionWorkflows([]);
+    setDataLoading(false);
+    setSessionsLoading(false);
+    sessionsOffsetRef.current = 0;
+  }, []);
+
   return {
     sessions,
     sessionsCount,
     sessionsLoading,
     sessionsOffset: sessionsOffsetRef.current,
     setSessionsLoading,
+    setSessions,
     selectedSessionMessages,
     selectedSessionWorkflows,
     dataLoading,
     setDataLoading,
     resetSessionData,
+    resetSessions,
   };
 }

@@ -185,6 +185,7 @@ export default function App() {
       setLoadingOlderHistory(false);
       lastSessionIdRef.current = null;
       chat.resetChatState();
+      sessionData.resetSessions();
       return;
     }
     if (lastSessionIdRef.current && lastSessionIdRef.current !== currentSessionId) {
@@ -192,9 +193,10 @@ export default function App() {
       historyRequestOffsetRef.current = null;
       setLoadingOlderHistory(false);
       chat.resetChatState();
+      sessionData.resetSessions();
     }
     lastSessionIdRef.current = currentSessionId;
-  }, [sessionState.session?.session_id]);
+  }, [sessionState.session?.session_id, sessionData.resetSessions]);
 
   useEffect(() => {
     const sessionId = sessionState.session?.session_id || null;

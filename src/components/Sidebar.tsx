@@ -3,6 +3,28 @@ import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 import ClerqeLogo from "./ClerqeLogo";
 
+type SessionInfo = import("../types/sessions").SessionInfo;
+
+function getDateLabel(date: Date): string {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+
+function groupByDate(sessions: SessionInfo[]): [string, SessionInfo[]][] {
+  const map = new Map<string, SessionInfo[]>();
+  for (const s of sessions) {
+    const key = new Date(s.started_at).toDateString();
+    const list = map.get(key) || [];
+    list.push(s);
+    map.set(key, list);
+  }
+  return Array.from(map).sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime());
+}
+
 export default function Sidebar(props: {
   open: boolean;
   theme: "light" | "dark" | "system";
@@ -41,6 +63,8 @@ export default function Sidebar(props: {
     { value: "system", label: "System theme", icon: "settings" },
     { value: "light", label: "Light mode", icon: "light_mode" },
   ];
+
+  const grouped = groupByDate(props.sessions);
 
   return (
     <aside
@@ -91,26 +115,32 @@ export default function Sidebar(props: {
           )}
           {!props.sessionsLoading && props.sessions.length === 0 && (
             <p className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-8 text-center">
-              <Icon name="history" className="text-lg text-gray-300 dark:text-gray-600" />
               <span className="text-sm text-gray-400 dark:text-gray-500">No sessions yet</span>
             </p>
           )}
-          {props.sessions.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
-              className="flex w-full items-start gap-3 rounded-[3px] px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
-            >
-              <Icon name="forum" className="mt-0.5 text-sm text-gray-400" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {s.last_message?.content || "Session " + s.id.slice(0, 8)}
-                </p>
-                <p className="mt-0.5 text-[11px] text-gray-400 dark:text-gray-500">
-                  {new Date(s.started_at).toLocaleDateString()} &middot; {s.status}
-                </p>
+          {grouped.map(([dateKey, dateSessions]) => (
+            <div key={dateKey}>
+              <div className="relative flex items-center py-1 px-3">
+                <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+                <span className="mx-4 text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                  {getDateLabel(new Date(dateKey))}
+                </span>
+                <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
               </div>
-            </button>
+              {dateSessions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
+                  className="flex w-full items-start gap-2 rounded-[3px] px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {s.last_message?.content || "Session " + s.id.slice(0, 8)}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
           ))}
         </div>
       </div>
