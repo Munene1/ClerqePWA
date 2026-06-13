@@ -438,9 +438,8 @@ export default function App() {
               )}
               {sessionState.preSignupWelcome ? (
                 <WelcomePopover onDismiss={sessionState.dismissPreSignupWelcome} />
-              ) : isStandalone || forceLogin ? (
+              ) : (
                 <LoginScreen
-                  isStandalone={true}
                   identifier={identifier}
                   setIdentifier={setIdentifier}
                   loading={sessionState.loading}
@@ -458,8 +457,6 @@ export default function App() {
                   onCancelFlow={sessionState.cancelAccountCreation}
                   onClearError={sessionState.clearError}
                 />
-              ) : (
-                <Navigate to="/introducing-clerqe" replace />
               )}
               </>
             </div>
