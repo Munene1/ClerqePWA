@@ -120,8 +120,10 @@ export default function IntroducingClerqe() {
 
             <div className="rounded-[8px] border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30">
               <p className="text-[15px] leading-7 text-amber-800 dark:text-amber-300">
-                <strong className="font-semibold">Financial access is not only about having an account or a phone.</strong>{" "}
-                Access also means being able to use financial services with confidence, in your own way, with your own language. Many people are digitally active but still blocked by language, navigation, jargon, or support delays.
+                <strong className="font-semibold">Financial access goes beyond having an account, or a phone.</strong>
+              </p>
+              <p className="mt-2 text-[15px] leading-7 text-amber-800 dark:text-amber-300">
+                We believe that access also means being able to use financial services with confidence, in your own way, with your own language.
               </p>
             </div>
 
@@ -129,9 +131,7 @@ export default function IntroducingClerqe() {
               A system that can meet people in English, Swahili, Sheng, or the everyday language they already use around money makes financial services more usable beyond mere availability.
             </p>
 
-            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
-              This is the next financial access layer.
-            </p>
+
 
             {/* For financial institutions */}
             <div className="!mt-10 border-t border-gray-200 pt-8 dark:border-gray-800" />
