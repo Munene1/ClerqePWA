@@ -155,7 +155,7 @@ export default function LoginScreen(props: {
         {props.authStep === "identifier" && (
           <button
             onClick={() => navigate("/introducing-clerqe")}
-            className="group flex items-center gap-1 text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300"
+            className="group flex items-center gap-1 text-xs text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline dark:text-gray-300 dark:hover:text-gray-100"
           >
             Read the story
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5">
@@ -166,8 +166,8 @@ export default function LoginScreen(props: {
         )}
         <div className="flex flex-col items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
           <span>We are powered by</span>
-          <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="h-8 block dark:hidden" />
-          <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="h-8 hidden dark:block" />
+          <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="h-16 block dark:hidden" />
+          <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="h-16 hidden dark:block" />
         </div>
       </div>
     </div>
