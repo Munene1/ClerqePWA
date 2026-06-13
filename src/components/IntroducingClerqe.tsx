@@ -40,6 +40,15 @@ export default function IntroducingClerqe() {
             <span>Clerqe Team</span>
           </div>
 
+          {/* NVIDIA banner */}
+          <div className="mt-8 -mx-4 bg-gray-50 px-5 py-5 sm:-mx-0 sm:rounded-[8px] dark:bg-gray-900/50">
+            <div className="flex flex-col items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+              <span>We are powered by</span>
+              <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="w-4/5 block dark:hidden" />
+              <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="w-4/5 hidden dark:block" />
+            </div>
+          </div>
+
           <div className="mt-8 space-y-6 text-[15px] leading-7 text-gray-600 dark:text-gray-300">
             <p>
               For most of us, the hardest part about money is not always the money itself, but the{" "}
@@ -47,7 +56,7 @@ export default function IntroducingClerqe() {
             </p>
 
             <p className="text-base italic text-gray-700 dark:text-gray-200">
-              Everyone knows <em className="not-italic font-semibold text-gray-900 dark:text-gray-100">exactly</em> what they want to do with their money:
+              Everyone knows <em className="not-italic font-semibold text-gray-900 dark:text-gray-100">exactly</em> what they want to do with their money
             </p>
 
             <ul className="list-disc space-y-1 pl-6">
@@ -59,27 +68,29 @@ export default function IntroducingClerqe() {
             </ul>
 
             <p>
-              The intent is clear. What is not always clear is <em className="italic text-gray-900 dark:text-gray-100">the process</em>. That gap — between knowing what you want and navigating how to get it done — is where most people get stuck.
+              The intent is clear. What is not always clear is <em className="italic text-gray-900 dark:text-gray-100">the process</em>. That gap, between knowing what you want and navigating how to get it done, is where most people get stuck.
             </p>
 
-            <p>
-              We have come a long way. Apps, mobile money, digital banking, call centers, and branch networks have made financial services more available than ever. Now the next step is bringing them closer to our most natural interface:{" "}
-              <strong className="font-semibold text-gray-900 dark:text-gray-100">language</strong>.
-            </p>
+            <div className="bg-gray-50 px-4 py-5 dark:bg-gray-900/50">
+              <p className="text-base leading-7 text-gray-700 dark:text-gray-200">
+                We have come a long way. Apps, mobile money, digital banking, call centers, and branch networks have made financial services more available than ever. Now the next step is bringing them closer to our most natural interface{" "}
+                <strong className="font-semibold text-gray-900 dark:text-gray-100">language</strong>.
+              </p>
+            </div>
 
             <p>
               Instead of waiting, figuring it out, queuing, and wrestling through apps, bank lobbies, and USSD menus, we can simply <em className="italic">say what we want</em> and get the result immediately. This is the world we live in today.
             </p>
 
             <p>
-              I am genuinely excited to share what we have been building around this for the last quarter:{" "}
+              I am genuinely excited to share what we have been building around this for the last quarter{" "}
               <strong className="font-semibold text-gray-900 dark:text-gray-100">Clerqe</strong>.
             </p>
 
             <div className="rounded-[8px] border-l-4 border-[var(--brand-primary)] bg-gray-50 px-4 py-3 dark:bg-gray-900/50 dark:border-[var(--brand-primary)]">
               <p className="text-[15px] leading-7 text-gray-700 dark:text-gray-200">
                 <strong className="font-semibold">Clerqe lets people complete money workflows through language.</strong>{" "}
-                You say what you need in the language you would naturally use, and Clerqe gets it done — the queues, support tickets, USSDs, and menus all gone.
+                You say what you need in the language you would naturally use, and Clerqe gets it done. The queues, support tickets, USSDs, and menus, all gone.
               </p>
             </div>
 
@@ -137,7 +148,7 @@ export default function IntroducingClerqe() {
             </p>
 
             <p>
-              Requests that would normally require a call, a branch visit, a long form, or several app steps can become guided self-service.
+              Requests that would normally require a call, a branch visit, a long form, or several app steps can become guided self service.
             </p>
 
             <p>
@@ -155,7 +166,7 @@ export default function IntroducingClerqe() {
             </h2>
 
             <p>
-              Financial execution must be controlled. There is no doubt about that. Every workflow needs the right checks: confirmation, authentication, permissions, audit records, limits, escalation, and human handover where necessary.
+              Financial execution must be controlled. There is no doubt about that. Every workflow needs the right checks like confirmation, authentication, permissions, audit records, limits, escalation, and human handover where necessary.
             </p>
 
             <div className="rounded-[8px] border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-black/50">
@@ -251,11 +262,6 @@ export default function IntroducingClerqe() {
 
         {/* Footer */}
         <div className="border-t border-gray-200 px-4 py-6 text-center text-xs text-gray-400 dark:border-gray-800 dark:text-gray-500 sm:px-0">
-          <div className="flex flex-col items-center justify-center gap-1 text-[11px] mb-2">
-            <span>We are powered by</span>
-            <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="h-16 block dark:hidden" />
-            <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="h-16 hidden dark:block" />
-          </div>
           {'\u00A9'} {new Date().getFullYear()} Clerqe. All rights reserved.
         </div>
       </div>
