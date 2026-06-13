@@ -526,9 +526,10 @@ export default function IntroducingClerqe() {
 
         {/* Footer */}
         <div className="border-t border-gray-200 px-4 py-6 text-center text-xs text-gray-400 dark:border-gray-800 dark:text-gray-500 sm:px-0">
-          <div className="flex items-center justify-center gap-2 mb-2 text-[11px]">
+          <div className="flex flex-col items-center justify-center gap-1 text-[11px] mb-2">
             <span>We are powered by</span>
-            <img src="/nvidia-inception-logo.png" alt="NVIDIA" className="h-5 opacity-70 grayscale" />
+            <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="h-8 block dark:hidden" />
+            <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="h-8 hidden dark:block" />
           </div>
           {'\u00A9'} {new Date().getFullYear()} Clerqe. All rights reserved.
         </div>

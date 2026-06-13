@@ -90,7 +90,6 @@ export default function App() {
     setRememberedEmail(null);
   };
 
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone || !!(window as any).Capacitor?.isNative;
   const isLoggedIn = sessionState.authenticated && !forceLogin;
   const userName = (sessionState.session?.customer as Record<string, unknown> | undefined)?.name as string | undefined || sessionState.fullName || undefined;
   const userEmail = (sessionState.session?.customer as Record<string, unknown> | undefined)?.email as string | undefined;
@@ -359,7 +358,7 @@ export default function App() {
         ) : <Navigate to="/" replace />
       } />
       <Route path="/introducing-clerqe" element={
-        isStandalone ? <Navigate to="/" replace /> : <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}><IntroducingClerqe /></Suspense>
+        <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}><IntroducingClerqe /></Suspense>
       } />
       <Route
         path="*"

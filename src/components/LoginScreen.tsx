@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import ClerqeLogo from "./ClerqeLogo";
 import AccountCreationPrompt from "./AccountCreationPrompt";
 import OtpVerificationCard from "./OtpVerificationCard";
@@ -21,6 +22,7 @@ export default function LoginScreen(props: {
   onCancelFlow: () => void;
   onClearError: () => void;
 }) {
+  const navigate = useNavigate();
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
     if (!domain) return email;
@@ -142,23 +144,30 @@ export default function LoginScreen(props: {
   );
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-y-auto bg-white dark:bg-black">
-      <div className="relative flex grow flex-col items-center justify-center px-6 pb-[calc(1rem+var(--sab,0px))] pt-[calc(1.5rem+var(--sat,0px))]">
+    <div className="relative flex min-h-dvh flex-col bg-white dark:bg-black">
+      <div className="flex grow flex-col items-center justify-center px-6 pt-[calc(1.5rem+var(--sat,0px))]">
         <div className="flex w-full max-w-sm flex-col items-center text-center">
           <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
           {form}
-          {props.authStep === "identifier" && (
-            <button
-              onClick={() => window.open("https://clerqe.com/introducing-clerqe", "_blank")}
-              className="mt-4 text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300"
-            >
-              Read the story
-            </button>
-          )}
         </div>
-        <div className="flex items-center justify-center gap-2 pb-6 text-[11px] text-gray-400 dark:text-gray-500">
+      </div>
+      <div className="flex flex-col items-center gap-2.5 pb-[calc(1rem+var(--sab,0px))] pt-3">
+        {props.authStep === "identifier" && (
+          <button
+            onClick={() => navigate("/introducing-clerqe")}
+            className="group flex items-center gap-1 text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            Read the story
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+        )}
+        <div className="flex flex-col items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
           <span>We are powered by</span>
-          <img src="/nvidia-inception-logo.png" alt="NVIDIA" className="h-5 opacity-70 grayscale" />
+          <img src="/nvidia-inception-logo-dark-text-transparentbg.png" alt="NVIDIA" className="h-8 block dark:hidden" />
+          <img src="/NVIDIA_Inception_dark-bg-white-text.jpg" alt="NVIDIA" className="h-8 hidden dark:block" />
         </div>
       </div>
     </div>
