@@ -160,7 +160,7 @@ export default function ChatMessages(props: {
         })()}
         {props.hasActiveRun && props.activeStatus && (
           <div className="chat-entry flex justify-start">
-            <div className="max-w-[88%]">
+            <div className="w-full">
               <div className="flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500">
                 <span className="font-medium text-gray-500 dark:text-gray-400">Clerqe</span>
               </div>
