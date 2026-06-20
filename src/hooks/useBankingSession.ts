@@ -3,7 +3,6 @@ import {
   confirmAccountCreation,
   demoLogin,
   extractApiErrorMessage,
-  setupAccountCreationPin,
   verifyAccountCreationOtp,
 } from "../api/auth";
 import type {
@@ -20,7 +19,7 @@ import {
   saveSession,
 } from "../utils/storage";
 
-type AuthStep = "identifier" | "signup" | "signup_otp" | "signup_pin";
+type AuthStep = "identifier" | "signup" | "signup_otp";
 
 function getInitialSessionState() {
   const savedSession = loadSession();
@@ -57,7 +56,6 @@ export function useBankingSession() {
   const [fullName, setFullName] = useState(initialState.fullName);
   const [pendingIdentifier, setPendingIdentifier] = useState(initialState.pendingIdentifier);
   const [authFlowState, setAuthFlowState] = useState<AuthFlowState | null>(initialState.authFlowState);
-  const [preSignupWelcome, setPreSignupWelcome] = useState(false);
 
   useEffect(() => {
     if (!error) return;
@@ -84,7 +82,7 @@ export function useBankingSession() {
         setPendingIdentifier(result.identifier);
         setAuthMessage(result.message);
         setFullName("");
-        setPreSignupWelcome(true);
+        setAuthStep("signup");
         return;
       }
       const sessionResult = result as CustomerSession;
@@ -146,11 +144,6 @@ export function useBankingSession() {
         otp,
       });
 
-      if ("status" in result && result.status === "pin_setup_required") {
-        setAuthStep("signup_pin");
-        setAuthMessage("Set a PIN to finish creating your account.");
-        return;
-      }
       if ("status" in result) {
         throw new Error("Unexpected signup verification response.");
       }
@@ -168,36 +161,6 @@ export function useBankingSession() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function submitPinSetup(pin: string, confirmPin: string) {
-    if (!authFlowState || authFlowState.flow !== "signup") return;
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await setupAccountCreationPin({
-        action_request_id: authFlowState.action_request_id,
-        pin,
-        confirm_pin: confirmPin,
-      });
-      clearAuthFlowState();
-      setAuthFlowState(null);
-      saveSession(result);
-      setSession(result);
-      setPendingIdentifier("");
-      setFullName("");
-      setAuthMessage(null);
-      setAuthStep("identifier");
-    } catch (err) {
-      setError(extractApiErrorMessage(err, "PIN setup failed. Please try again."));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function dismissPreSignupWelcome() {
-    setPreSignupWelcome(false);
-    setAuthStep("signup");
   }
 
   function cancelAccountCreation() {
@@ -223,7 +186,6 @@ export function useBankingSession() {
     setPendingIdentifier("");
     setFullName("");
     setAuthMessage(null);
-    setPreSignupWelcome(false);
   }
 
   return {
@@ -236,14 +198,11 @@ export function useBankingSession() {
     fullName,
     pendingIdentifier,
     authFlowState,
-    preSignupWelcome,
     login,
     clearError,
     beginAccountCreation,
     submitOtp,
-    submitPinSetup,
     setFullName,
-    dismissPreSignupWelcome,
     cancelAccountCreation,
     logout,
   };

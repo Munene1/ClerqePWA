@@ -3,12 +3,14 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import LoginScreen from "./components/LoginScreen";
+import { isAdminLoggedIn } from "./api/admin";
 
 const IntroducingClerqe = lazy(() => import("./components/IntroducingClerqe"));
+const AdminScreen = lazy(() => import("./components/AdminScreen"));
+const AdminLoginScreen = lazy(() => import("./components/AdminLoginScreen"));
 import SessionDetailPage from "./components/SessionDetailPage";
 import Sidebar from "./components/Sidebar";
 import ClerqeLogo from "./components/ClerqeLogo";
-import WelcomePopover from "./components/WelcomePopover";
 import { useSessionData } from "./hooks/useSessionData";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
@@ -34,7 +36,6 @@ export default function App() {
   };
   const [loadingOlderHistory, setLoadingOlderHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [signupNoticeVisible, setSignupNoticeVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [enteringChat, setEnteringChat] = useState(false);
   const [rememberedEmail, setRememberedEmail] = useState<string | null>(() => loadRememberedEmail());
@@ -213,8 +214,6 @@ export default function App() {
     if (!sessionId || !customerId) return;
     if (socket.connectionState !== "connected") return;
     if (historyLoadedSessionRef.current === sessionId) return;
-    // If we have a cached history snapshot for this customer, skip the backend fetch.
-    // The socket will push any new messages incrementally.
     const cached = loadChatHistory(customerId);
     if (cached && cached.messages.length > 0) {
       historyLoadedSessionRef.current = sessionId;
@@ -274,16 +273,6 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (!sessionState.preSignupWelcome) {
-      setSignupNoticeVisible(false);
-      return;
-    }
-    setSignupNoticeVisible(true);
-    const timer = setTimeout(() => setSignupNoticeVisible(false), 3000);
-    return () => clearTimeout(timer);
-  }, [sessionState.preSignupWelcome]);
 
   return (
     <div className="relative">
@@ -360,6 +349,11 @@ export default function App() {
       <Route path="/introducing-clerqe" element={
         <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}><IntroducingClerqe /></Suspense>
       } />
+      <Route path="/admin" element={
+        <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}>
+          <AdminGuard />
+        </Suspense>
+      } />
       <Route
         path="*"
         element={
@@ -427,37 +421,23 @@ export default function App() {
             </div>
           ) : (
             <div key="login" className="animate-fade-in">
-              <>
-              {signupNoticeVisible && (
-                <div className="pointer-events-none fixed left-1/2 top-3 z-[70] w-[min(92vw,32rem)] -translate-x-1/2 animate-toast-slide-in">
-                  <div className="rounded-[6px] border border-black/8 bg-white px-4 py-3 text-sm leading-5 text-slate-700 shadow-[0_10px_30px_rgba(15,82,88,0.10)] dark:border-white/10 dark:bg-white dark:text-slate-800">
-                    We couldn&apos;t find an account for that email. Read the short notice, then continue to create one.
-                  </div>
-                </div>
-              )}
-              {sessionState.preSignupWelcome ? (
-                <WelcomePopover onDismiss={sessionState.dismissPreSignupWelcome} />
-              ) : (
-                <LoginScreen
-                  identifier={identifier}
-                  setIdentifier={setIdentifier}
-                  loading={sessionState.loading}
-                  error={forceLogin ? "Your session expired. Please sign in again." : sessionState.error}
-                  authStep={sessionState.authStep}
-                  authMessage={sessionState.authMessage}
-                  fullName={sessionState.fullName}
-                  setFullName={sessionState.setFullName}
-                  rememberedEmail={rememberedEmail}
-                  onClearRememberedEmail={handleClearRememberedEmail}
-                  onSubmitIdentifier={(email) => sessionState.login(email ?? identifier)}
-                  onConfirmAccountCreation={sessionState.beginAccountCreation}
-                  onSubmitOtp={sessionState.submitOtp}
-                  onSubmitPinSetup={sessionState.submitPinSetup}
-                  onCancelFlow={sessionState.cancelAccountCreation}
-                  onClearError={sessionState.clearError}
-                />
-              )}
-              </>
+              <LoginScreen
+                identifier={identifier}
+                setIdentifier={setIdentifier}
+                loading={sessionState.loading}
+                error={forceLogin ? "Your session expired. Please sign in again." : sessionState.error}
+                authStep={sessionState.authStep}
+                authMessage={sessionState.authMessage}
+                fullName={sessionState.fullName}
+                setFullName={sessionState.setFullName}
+                rememberedEmail={rememberedEmail}
+                onClearRememberedEmail={handleClearRememberedEmail}
+                onSubmitIdentifier={(email) => sessionState.login(email ?? identifier)}
+                onConfirmAccountCreation={sessionState.beginAccountCreation}
+                onSubmitOtp={sessionState.submitOtp}
+                onCancelFlow={sessionState.cancelAccountCreation}
+                onClearError={sessionState.clearError}
+              />
             </div>
           )
         }
@@ -465,4 +445,13 @@ export default function App() {
     </Routes>
     </div>
   );
+}
+
+function AdminGuard() {
+  const [loggedIn, setLoggedIn] = useState(() => isAdminLoggedIn());
+
+  if (!loggedIn) {
+    return <AdminLoginScreen onLogin={() => setLoggedIn(true)} />;
+  }
+  return <AdminScreen />;
 }

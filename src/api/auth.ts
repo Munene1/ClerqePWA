@@ -4,7 +4,6 @@ import type {
   CustomerSession,
   LoginResponse,
   OtpSentResponse,
-  PinSetupRequiredResponse,
   SignUpFlowState,
 } from "../types/auth";
 
@@ -130,16 +129,8 @@ export async function verifyAccountCreationOtp(payload: {
   challenge_id: string;
   otp: string;
 }) {
-  return request<CustomerSession | PinSetupRequiredResponse>(
+  return request<CustomerSession>(
     "/auth/enroll/verify",
     payload,
   );
-}
-
-export async function setupAccountCreationPin(payload: {
-  action_request_id: string;
-  pin: string;
-  confirm_pin: string;
-}) {
-  return request<CustomerSession>("/auth/enroll/pin", payload);
 }

@@ -2,14 +2,13 @@ import { useNavigate } from "react-router-dom";
 import ClerqeLogo from "./ClerqeLogo";
 import AccountCreationPrompt from "./AccountCreationPrompt";
 import OtpVerificationCard from "./OtpVerificationCard";
-import PinSetupCard from "./PinSetupCard";
 
 export default function LoginScreen(props: {
   identifier: string;
   setIdentifier: (value: string) => void;
   loading: boolean;
   error?: string | null;
-  authStep: "identifier" | "signup" | "signup_otp" | "signup_pin";
+  authStep: "identifier" | "signup" | "signup_otp";
   authMessage?: string | null;
   fullName?: string;
   setFullName: (value: string) => void;
@@ -18,7 +17,6 @@ export default function LoginScreen(props: {
   onSubmitIdentifier: (email?: string) => void;
   onConfirmAccountCreation: (fullName: string) => void;
   onSubmitOtp: (otp: string) => void;
-  onSubmitPinSetup: (pin: string, confirmPin: string) => void;
   onCancelFlow: () => void;
   onClearError: () => void;
 }) {
@@ -132,12 +130,6 @@ export default function LoginScreen(props: {
           onCancel={props.onCancelFlow}
           onClearError={props.onClearError}
         />
-        </div>
-      )}
-
-      {props.authStep === "signup_pin" && (
-        <div key="pin" className="animate-fade-slide-in">
-          <PinSetupCard loading={props.loading} onSubmit={props.onSubmitPinSetup} onCancel={props.onCancelFlow} onClearError={props.onClearError} />
         </div>
       )}
     </div>

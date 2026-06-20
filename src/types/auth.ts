@@ -22,10 +22,6 @@ export type OtpSentResponse = {
   message?: string;
 };
 
-export type PinSetupRequiredResponse = {
-  status: "pin_setup_required";
-};
-
 export type SignUpFlowState = {
   flow: "signup";
   identifier: string;
