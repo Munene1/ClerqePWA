@@ -20,6 +20,11 @@ export type ClarificationCardState = {
   status: "pending" | "answered";
 };
 
+export type FeedbackCardState = {
+  toolType: string;
+  submitted: boolean;
+};
+
 const DEFAULT_HISTORY_LIMIT = 30;
 
 export function useChatMessages(lastEvent: BankingEvent | null, customerId?: string | null) {
@@ -28,6 +33,7 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [hasActiveRun, setHasActiveRun] = useState(false);
   const [activeClarificationCard, setActiveClarificationCard] = useState<ClarificationCardState | null>(null);
+  const [activeFeedback, setActiveFeedback] = useState<FeedbackCardState | null>(null);
   const [historyPairCount, setHistoryPairCount] = useState(0);
   const [historyLoadedPairs, setHistoryLoadedPairs] = useState(0);
   const [historyLimit, setHistoryLimit] = useState(DEFAULT_HISTORY_LIMIT);
@@ -372,6 +378,21 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
       clearActiveRun(resolveCorrelation(lastEvent));
       return;
     }
+
+    if (type === "feedback.request") {
+      const payload = (lastEvent as { payload?: { tool_type?: string } })?.payload;
+      const toolType = payload?.tool_type || "";
+      if (toolType) {
+        setActiveFeedback({ toolType, submitted: false });
+      }
+      return;
+    }
+
+    if (type === "feedback.submitted") {
+      setActiveFeedback((prev) => (prev ? { ...prev, submitted: true } : null));
+      setTimeout(() => setActiveFeedback(null), 3000);
+      return;
+    }
   }, [hasActiveRun, lastEvent, activeClarificationCard]);
 
   function addUserMessage(text: string, correlationId?: string) {
@@ -406,6 +427,10 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     if (activeClarificationCard && activeClarificationCard.correlationId === correlationId) {
       setActiveClarificationCard((prev) => prev ? { ...prev, status: "answered" } : null);
     }
+  }
+
+  function clearActiveFeedback() {
+    setActiveFeedback(null);
   }
 
   function shiftResendQueue() {
@@ -446,10 +471,12 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     historyLimit,
     hasOlderHistory,
     activeClarificationCard,
+    activeFeedback,
     addUserMessage,
     addErrorMessage,
     failActiveRequest,
     clearActiveStatus,
+    clearActiveFeedback,
     markClarificationAnswered,
     resetChatState,
     setActiveStatus,

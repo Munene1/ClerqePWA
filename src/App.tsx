@@ -15,6 +15,7 @@ import { useSessionData } from "./hooks/useSessionData";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
 import { useChatMessages } from "./hooks/useChatMessages";
+import { useFeedback } from "./hooks/useFeedback";
 import { useInstallPrompt } from "./hooks/useInstallPrompt";
 import { getEventType } from "./utils/eventNormalize";
 import { loadChatHistory, loadRememberedEmail, saveRememberedEmail, clearRememberedEmail } from "./utils/storage";
@@ -52,6 +53,7 @@ export default function App() {
     accessToken: sessionState.session?.access_token,
   });
   const chat = useChatMessages(socket.lastEvent, sessionState.session?.customer_id);
+  const feedback = useFeedback(socket.lastEvent);
   const sessionData = useSessionData(socket.lastEvent);
   const installPrompt = useInstallPrompt();
   const forceLogin = socket.sessionExpired;
@@ -371,6 +373,11 @@ export default function App() {
         hasOlderHistory={chat.hasOlderHistory}
         loadingOlderHistory={loadingOlderHistory}
         activeClarificationCard={chat.activeClarificationCard}
+        activeFeedback={chat.activeFeedback}
+        feedbackRating={feedback.feedback?.rating ?? null}
+        feedbackWhatWorked={feedback.feedback?.whatWorked ?? []}
+        feedbackWhatWouldSwitch={feedback.feedback?.whatWouldSwitch ?? []}
+        feedbackCompetitiveChoice={feedback.feedback?.competitiveChoice ?? ""}
         accessToken={sessionState.session?.access_token ?? ""}
         onReconnect={() => socket.reconnect()}
         onLoadOlderHistory={() => {
@@ -409,6 +416,23 @@ export default function App() {
           } catch {
             chat.failActiveRequest();
             chat.addErrorMessage("Unable to send clarification right now.");
+          }
+        }}
+        onSetFeedbackRating={(rating) => feedback.setRating(rating)}
+        onToggleFeedbackWhatWorked={(option) => feedback.toggleWhatWorked(option)}
+        onToggleFeedbackWhatWouldSwitch={(option) => feedback.toggleWhatWouldSwitch(option)}
+        onSetFeedbackCompetitiveChoice={(choice) => feedback.setCompetitiveChoice(choice)}
+        onSubmitFeedback={() => {
+          if (feedback.feedback) {
+            socket.submitFeedback({
+              tool_type: feedback.feedback.toolType,
+              rating: feedback.feedback.rating || 0,
+              what_worked: feedback.feedback.whatWorked,
+              what_would_switch: feedback.feedback.whatWouldSwitch,
+              competitive_choice: feedback.feedback.competitiveChoice,
+            });
+            chat.clearActiveFeedback?.();
+            feedback.clearFeedback();
           }
         }}
       />

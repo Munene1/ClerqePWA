@@ -96,6 +96,15 @@ export function useBankingSocket(params: {
       loadSessionWorkflows(sessionId: string) {
         clientRef.current?.send({ type: "session.workflows", payload: { session_id: sessionId } });
       },
+      submitFeedback(payload: {
+        tool_type: string;
+        rating: number;
+        what_worked: string[];
+        what_would_switch: string[];
+        competitive_choice: string;
+      }) {
+        clientRef.current?.send({ type: "feedback.submit", payload });
+      },
       close() {
         clientRef.current?.close();
       },
