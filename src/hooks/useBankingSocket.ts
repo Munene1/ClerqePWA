@@ -77,13 +77,14 @@ export function useBankingSocket(params: {
       resume() {
         clientRef.current?.send({ type: "session.resume" });
       },
-      loadChatHistory(customerId: string, limit = 30, offset = 0) {
+      loadChatHistory(customerId: string, limit = 30, offset = 0, sessionId?: string) {
         clientRef.current?.send({
           type: "chat.history.load",
           payload: {
             customer_id: customerId,
             limit,
             offset,
+            ...(sessionId ? { session_id: sessionId } : {}),
           },
         });
       },

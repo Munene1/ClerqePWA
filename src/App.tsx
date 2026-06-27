@@ -222,7 +222,7 @@ export default function App() {
       return;
     }
     try {
-      socket.loadChatHistory(customerId, 30, 0);
+      socket.loadChatHistory(customerId, 30, 0, sessionId);
       setLoadingHistory(true);
       historyRequestOffsetRef.current = 0;
       historyLoadedSessionRef.current = sessionId;
