@@ -191,7 +191,6 @@ export class BankingSocketClient {
       status === 401 ||
       status === 403 ||
       type.includes("session.expired") ||
-      type.includes("auth.failed") ||
       message.includes("403") ||
       message.includes("forbidden") ||
       message.includes("unauthorized") ||
