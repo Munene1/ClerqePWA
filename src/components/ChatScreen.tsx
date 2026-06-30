@@ -74,8 +74,7 @@ const ChatScreen = memo(function ChatScreen(props: {
   const disabled = props.connectionState !== "connected";
   const criticalError = props.reconnectFailed ? "Unable to connect to Clerqe. Check your connection and try again." : null;
   return (
-    <div className="flex h-dvh items-center justify-center bg-gray-100 dark:bg-[#080808]">
-      <div className="flex h-dvh w-full max-w-2xl flex-col overflow-hidden bg-gray-100 dark:bg-[#080808]">
+    <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[38rem] w-full max-w-3xl flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/72 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/5 dark:bg-[#050908]/80 dark:shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
         <ChatMessages
           messages={props.messages}
           loadingHistory={props.loadingHistory}
@@ -145,7 +144,6 @@ const ChatScreen = memo(function ChatScreen(props: {
         )}
 
         <ChatInput disabled={disabled} reconnectFailed={props.reconnectFailed} accessToken={props.accessToken} onReconnect={props.onReconnect} onSend={props.onSend} />
-      </div>
     </div>
   );
 });
