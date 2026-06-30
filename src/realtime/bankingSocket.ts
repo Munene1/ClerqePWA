@@ -2,6 +2,11 @@ import { WS_BASE_URL } from "../config/env";
 import type { SocketConnectionState } from "../types/banking";
 import type { BankingEvent } from "../types/events";
 
+const PRIMARY_WS = WS_BASE_URL;
+const FALLBACK_WS = "wss://clerqe.com";
+const isLocalWs = PRIMARY_WS.includes("localhost") || PRIMARY_WS.includes("127.0.0.1") || PRIMARY_WS.includes("::1");
+let cachedWsBase: string | null = null;
+
 type Subscriber = (event: BankingEvent) => void;
 type StateSubscriber = (state: SocketConnectionState) => void;
 type SessionExpiredSubscriber = () => void;
@@ -66,9 +71,14 @@ export class BankingSocketClient {
     this.stateListeners.forEach((listener) => listener(next));
   }
 
+  private wsUrl(): string {
+    const base = cachedWsBase || (isLocalWs ? PRIMARY_WS : FALLBACK_WS);
+    return `${base}/ws/link/${encodeURIComponent(this.sessionId!)}?token=${encodeURIComponent(this.token!)}`;
+  }
+
   private open() {
     if (!this.sessionId || !this.token) return;
-    const url = `${WS_BASE_URL}/ws/link/${encodeURIComponent(this.sessionId)}?token=${encodeURIComponent(this.token)}`;
+    const url = this.wsUrl();
     this.setState(this.reconnectCount > 0 ? "reconnecting" : "connecting");
     this.socket = new WebSocket(url);
     this.connectTimeoutTimer = window.setTimeout(() => {
@@ -135,6 +145,13 @@ export class BankingSocketClient {
 
     this.socket.onerror = () => {
       this.clearConnectTimeout();
+      if (isLocalWs && !cachedWsBase) {
+        cachedWsBase = FALLBACK_WS;
+        this.socket = null;
+        this.setState("reconnecting");
+        this.open();
+        return;
+      }
       this.setState("error");
     };
 
@@ -147,6 +164,12 @@ export class BankingSocketClient {
       }
       if (this.isForbiddenClose(event)) {
         this.handleSessionExpired();
+        return;
+      }
+      if (isLocalWs && !cachedWsBase && event.code !== 1000) {
+        cachedWsBase = FALLBACK_WS;
+        this.setState("reconnecting");
+        this.open();
         return;
       }
       this.consecutiveFailures += 1;

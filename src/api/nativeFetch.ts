@@ -64,15 +64,14 @@ export async function nativeFetch<T>(
     return doFetch(url, options);
   }
 
-  const effectiveBase = fallbackBase || API_BASE_URL;
-  const effectiveUrl = effectiveBase === API_BASE_URL ? url : replaceBase(url, effectiveBase);
+  if (fallbackBase) {
+    return doFetch(replaceBase(url, fallbackBase), options);
+  }
 
   try {
-    return await doFetch(effectiveUrl, { ...options, timeout: options.timeout ?? 3000 });
-  } catch (err) {
-    if (fallbackBase) throw err;
+    return await doFetch(url, { ...options, timeout: 3000 });
+  } catch {
     fallbackBase = FALLBACK_BASE;
-    const fallbackUrl = replaceBase(url, FALLBACK_BASE);
-    return doFetch(fallbackUrl, { ...options, timeout: options.timeout ?? 10000 });
+    return doFetch(replaceBase(url, FALLBACK_BASE), options);
   }
 }
