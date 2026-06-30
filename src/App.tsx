@@ -3,15 +3,14 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import LoginScreen from "./components/LoginScreen";
-import BeneficiaryListPage from "./pages/BeneficiaryListPage";
-import BeneficiaryDetailPage from "./pages/BeneficiaryDetailPage";
 import { isAdminLoggedIn } from "./api/admin";
 
 const IntroducingClerqe = lazy(() => import("./components/IntroducingClerqe"));
 const AdminScreen = lazy(() => import("./components/AdminScreen"));
 const AdminLoginScreen = lazy(() => import("./components/AdminLoginScreen"));
 import SessionDetailPage from "./components/SessionDetailPage";
-import AppShell from "./components/AppShell";
+import Sidebar from "./components/Sidebar";
+import ClerqeLogo from "./components/ClerqeLogo";
 import { useSessionData } from "./hooks/useSessionData";
 import { useBankingSession } from "./hooks/useBankingSession";
 import { useBankingSocket } from "./hooks/useBankingSocket";
@@ -57,11 +56,6 @@ export default function App() {
   const feedback = useFeedback(socket.lastEvent);
   const sessionData = useSessionData(socket.lastEvent);
   const installPrompt = useInstallPrompt();
-  useEffect(() => {
-    if (chat.activeFeedback && !chat.activeFeedback.submitted) {
-      feedback.requestFeedback(chat.activeFeedback.toolType);
-    }
-  }, [chat.activeFeedback]);
   const forceLogin = socket.sessionExpired;
   useEffect(() => {
     if (sessionState.authenticated && identifier) {
@@ -273,19 +267,6 @@ export default function App() {
   const prevPathRef = useRef(location.pathname);
   const [transitioning, setTransitioning] = useState(false);
 
-  const shellTitle = (() => {
-    if (location.pathname.startsWith("/beneficiaries/")) return "Beneficiary";
-    if (location.pathname.startsWith("/beneficiaries")) return "Beneficiaries";
-    if (location.pathname.startsWith("/sessions/")) return "Session details";
-    return "Assistant";
-  })();
-
-  const shellSubtitle = (() => {
-    if (location.pathname.startsWith("/beneficiaries")) return "Manage saved people, merchants, and schedules";
-    if (location.pathname.startsWith("/sessions/")) return "Review workflows and transcript history";
-    return "Chat with Clerqe";
-  })();
-
   useEffect(() => {
     if (prevPathRef.current !== location.pathname) {
       setTransitioning(true);
@@ -319,74 +300,54 @@ export default function App() {
         </div>
       )}
 
+{isLoggedIn && (
+          <>
+            <Sidebar
+              open={sidebarOpen}
+              theme={theme}
+              userName={userName}
+              userEmail={userEmail}
+              sessions={sessionData.sessions}
+              sessionsLoading={sessionData.sessionsLoading}
+              onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
+              onClose={() => setSidebarOpen(false)}
+              onLogout={handleLogout}
+              onSetTheme={(t) => setTheme(t)}
+            />
+          <div
+            className="fixed left-1.5 z-30 flex items-center gap-1.5 rounded-full bg-white/80 px-1.5 py-1 shadow-[0_0_6px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-[#111] dark:shadow-[0_0_6px_rgba(0,0,0,0.3)]"
+            style={{ top: "calc(0.25rem + var(--sat, 0px))" }}
+          >
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-900 dark:active:bg-gray-800"
+              aria-label="Open menu"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="14" y2="18" />
+              </svg>
+            </button>
+            <ClerqeLogo className="h-8 text-gray-700 dark:text-gray-300" />
+          </div>
+        </>
+      )}
+
     <Routes>
       <Route path="/sessions/:sessionId" element={
         isLoggedIn ? (
-          <AppShell
-            title={shellTitle}
-            subtitle={shellSubtitle}
-            sidebarOpen={sidebarOpen}
-            theme={theme}
-            userName={userName}
-            userEmail={userEmail}
-            sessions={sessionData.sessions}
-            sessionsLoading={sessionData.sessionsLoading}
-            onOpenSidebar={() => setSidebarOpen(true)}
-            onCloseSidebar={() => setSidebarOpen(false)}
-            onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
-            onLogout={handleLogout}
-            onSetTheme={(t) => setTheme(t)}
-          >
-            <SessionDetailPage
-              lastEvent={socket.lastEvent}
-              onLoadSessionMessages={(sid) => { sessionData.setDataLoading(true); socket.loadSessionMessages(sid); }}
-              onLoadSessionWorkflows={(sid) => { sessionData.setDataLoading(true); socket.loadSessionWorkflows(sid); }}
-              selectedSessionMessages={sessionData.selectedSessionMessages}
-              selectedSessionWorkflows={sessionData.selectedSessionWorkflows}
-              dataLoading={sessionData.dataLoading}
-              onResetSessionData={sessionData.resetSessionData}
-            />
-          </AppShell>
+          <SessionDetailPage
+            lastEvent={socket.lastEvent}
+            onLoadSessionMessages={(sid) => { sessionData.setDataLoading(true); socket.loadSessionMessages(sid); }}
+            onLoadSessionWorkflows={(sid) => { sessionData.setDataLoading(true); socket.loadSessionWorkflows(sid); }}
+            selectedSessionMessages={sessionData.selectedSessionMessages}
+            selectedSessionWorkflows={sessionData.selectedSessionWorkflows}
+            dataLoading={sessionData.dataLoading}
+            onResetSessionData={sessionData.resetSessionData}
+          />
         ) : <Navigate to="/" replace />
       } />
-      <Route path="/beneficiaries" element={isLoggedIn ? (
-        <AppShell
-          title={shellTitle}
-          subtitle={shellSubtitle}
-          sidebarOpen={sidebarOpen}
-          theme={theme}
-          userName={userName}
-          userEmail={userEmail}
-          sessions={sessionData.sessions}
-          sessionsLoading={sessionData.sessionsLoading}
-          onOpenSidebar={() => setSidebarOpen(true)}
-          onCloseSidebar={() => setSidebarOpen(false)}
-          onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
-          onLogout={handleLogout}
-          onSetTheme={(t) => setTheme(t)}
-        >
-          <BeneficiaryListPage />
-        </AppShell>
-      ) : <Navigate to="/" replace />} />
-      <Route path="/beneficiaries/:id" element={isLoggedIn ? (
-        <AppShell
-          title={shellTitle}
-          subtitle={shellSubtitle}
-          sidebarOpen={sidebarOpen}
-          theme={theme}
-          userName={userName}
-          userEmail={userEmail}
-          sessions={sessionData.sessions}
-          sessionsLoading={sessionData.sessionsLoading}
-          onOpenSidebar={() => setSidebarOpen(true)}
-          onCloseSidebar={() => setSidebarOpen(false)}
-          onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
-          onLogout={handleLogout}
-          onSetTheme={(t) => setTheme(t)}
-        >
-          <BeneficiaryDetailPage />
-        </AppShell>
-      ) : <Navigate to="/" replace />} />
       <Route path="/introducing-clerqe" element={
         <Suspense fallback={<div className="flex h-dvh items-center justify-center bg-white dark:bg-black"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" /></div>}><IntroducingClerqe /></Suspense>
       } />
@@ -400,103 +361,87 @@ export default function App() {
         element={
           sessionState.authenticated && !forceLogin ? (
             <div key="chat" className="animate-fade-in">
-              <AppShell
-                title={shellTitle}
-                subtitle={shellSubtitle}
-                sidebarOpen={sidebarOpen}
-                theme={theme}
-                userName={userName}
-                userEmail={userEmail}
-                sessions={sessionData.sessions}
-                sessionsLoading={sessionData.sessionsLoading}
-                onOpenSidebar={() => setSidebarOpen(true)}
-                onCloseSidebar={() => setSidebarOpen(false)}
-                onLoadSessions={() => { sessionData.setSessionsLoading(true); try { socket.listSessions(); } catch { sessionData.setSessionsLoading(false); } }}
-                onLogout={handleLogout}
-                onSetTheme={(t) => setTheme(t)}
-              >
-                <ChatScreen
-                  connectionState={socket.connectionState}
-                  reconnectFailed={socket.reconnectFailed}
-                  loadingHistory={loadingHistory}
-                  messages={chat.messages}
-                  historyMessageCount={chat.historyMessageCount}
-                  liveMessageCount={chat.liveMessageCount}
-                  activeStatus={chat.activeStatus}
-                  hasActiveRun={chat.hasActiveRun}
-                  hasOlderHistory={chat.hasOlderHistory}
-                  loadingOlderHistory={loadingOlderHistory}
-                  activeClarificationCard={chat.activeClarificationCard}
-                  activeFeedback={chat.activeFeedback}
-                  feedbackRating={feedback.feedback?.rating ?? null}
-                  feedbackWhatWorked={feedback.feedback?.whatWorked ?? []}
-                  feedbackWhatWouldSwitch={feedback.feedback?.whatWouldSwitch ?? []}
-                  feedbackCompetitiveChoice={feedback.feedback?.competitiveChoice ?? ""}
-                  accessToken={sessionState.session?.access_token ?? ""}
-                  onReconnect={() => socket.reconnect()}
-                  onLoadOlderHistory={() => {
-                    const customerId = sessionState.session?.customer_id;
-                    if (!customerId) return;
-                    if (socket.connectionState !== "connected") return;
-                    if (!chat.hasOlderHistory) return;
-                    if (loadingOlderHistory) return;
-                    const nextOffset = chat.historyLoadedPairs;
-                    if (historyRequestOffsetRef.current === nextOffset) return;
-                    setLoadingOlderHistory(true);
-                    historyRequestOffsetRef.current = nextOffset;
-                    try {
-                      socket.loadChatHistory(customerId, chat.historyLimit, nextOffset);
-                    } catch {
-                      historyRequestOffsetRef.current = null;
-                      setLoadingOlderHistory(false);
-                      chat.addErrorMessage("Unable to load older messages right now.");
-                    }
-                  }}
-                  onSend={(text) => {
-                    const correlationId = chat.addUserMessage(text);
-                    try {
-                      socket.sendUserMessage(text, undefined, correlationId);
-                    } catch {
-                      chat.failActiveRequest();
-                      chat.addErrorMessage("Unable to send right now. Reconnecting...");
-                    }
-                  }}
-                  onSelectClarification={(correlationId, option) => {
-                    const text = `Use ${option.label}`;
-                    chat.markClarificationAnswered(correlationId);
-                    const nextCorrelationId = chat.addUserMessage(text, correlationId);
-                    try {
-                      socket.sendUserMessage(text, option, nextCorrelationId);
-                    } catch {
-                      chat.failActiveRequest();
-                      chat.addErrorMessage("Unable to send clarification right now.");
-                    }
-                  }}
-                  onSetFeedbackRating={(rating) => feedback.setRating(rating)}
-                  onToggleFeedbackWhatWorked={(option) => feedback.toggleWhatWorked(option)}
-                  onToggleFeedbackWhatWouldSwitch={(option) => feedback.toggleWhatWouldSwitch(option)}
-                  onSetFeedbackCompetitiveChoice={(choice) => feedback.setCompetitiveChoice(choice)}
-                  onSubmitFeedback={() => {
-                    if (feedback.feedback) {
-                      socket.submitFeedback({
-                        tool_type: feedback.feedback.toolType,
-                        rating: feedback.feedback.rating || 0,
-                        what_worked: feedback.feedback.whatWorked,
-                        what_would_switch: feedback.feedback.whatWouldSwitch,
-                        competitive_choice: feedback.feedback.competitiveChoice,
-                      });
-                      chat.clearActiveFeedback?.();
-                      feedback.clearFeedback();
-                    }
-                  }}
-                />
-                {installPrompt.canInstall && (
-                  <InstallPromptBanner
-                    onInstall={installPrompt.promptInstall}
-                    onDismiss={() => installPrompt.setDismissed(true)}
-                  />
-                )}
-              </AppShell>
+      <ChatScreen
+        connectionState={socket.connectionState}
+        reconnectFailed={socket.reconnectFailed}
+        loadingHistory={loadingHistory}
+        messages={chat.messages}
+        historyMessageCount={chat.historyMessageCount}
+        liveMessageCount={chat.liveMessageCount}
+        activeStatus={chat.activeStatus}
+        hasActiveRun={chat.hasActiveRun}
+        hasOlderHistory={chat.hasOlderHistory}
+        loadingOlderHistory={loadingOlderHistory}
+        activeClarificationCard={chat.activeClarificationCard}
+        activeFeedback={chat.activeFeedback}
+        feedbackRating={feedback.feedback?.rating ?? null}
+        feedbackWhatWorked={feedback.feedback?.whatWorked ?? []}
+        feedbackWhatWouldSwitch={feedback.feedback?.whatWouldSwitch ?? []}
+        feedbackCompetitiveChoice={feedback.feedback?.competitiveChoice ?? ""}
+        accessToken={sessionState.session?.access_token ?? ""}
+        onReconnect={() => socket.reconnect()}
+        onLoadOlderHistory={() => {
+          const customerId = sessionState.session?.customer_id;
+          if (!customerId) return;
+          if (socket.connectionState !== "connected") return;
+          if (!chat.hasOlderHistory) return;
+          if (loadingOlderHistory) return;
+          const nextOffset = chat.historyLoadedPairs;
+          if (historyRequestOffsetRef.current === nextOffset) return;
+          setLoadingOlderHistory(true);
+          historyRequestOffsetRef.current = nextOffset;
+          try {
+            socket.loadChatHistory(customerId, chat.historyLimit, nextOffset);
+          } catch {
+            historyRequestOffsetRef.current = null;
+            setLoadingOlderHistory(false);
+            chat.addErrorMessage("Unable to load older messages right now.");
+          }
+        }}
+        onSend={(text) => {
+          const correlationId = chat.addUserMessage(text);
+          try {
+            socket.sendUserMessage(text, undefined, correlationId);
+          } catch {
+            chat.failActiveRequest();
+            chat.addErrorMessage("Unable to send right now. Reconnecting...");
+          }
+        }}
+        onSelectClarification={(correlationId, option) => {
+          const text = `Use ${option.label}`;
+          chat.markClarificationAnswered(correlationId);
+          const nextCorrelationId = chat.addUserMessage(text, correlationId);
+          try {
+            socket.sendUserMessage(text, option, nextCorrelationId);
+          } catch {
+            chat.failActiveRequest();
+            chat.addErrorMessage("Unable to send clarification right now.");
+          }
+        }}
+        onSetFeedbackRating={(rating) => feedback.setRating(rating)}
+        onToggleFeedbackWhatWorked={(option) => feedback.toggleWhatWorked(option)}
+        onToggleFeedbackWhatWouldSwitch={(option) => feedback.toggleWhatWouldSwitch(option)}
+        onSetFeedbackCompetitiveChoice={(choice) => feedback.setCompetitiveChoice(choice)}
+        onSubmitFeedback={() => {
+          if (feedback.feedback) {
+            socket.submitFeedback({
+              tool_type: feedback.feedback.toolType,
+              rating: feedback.feedback.rating || 0,
+              what_worked: feedback.feedback.whatWorked,
+              what_would_switch: feedback.feedback.whatWouldSwitch,
+              competitive_choice: feedback.feedback.competitiveChoice,
+            });
+            chat.clearActiveFeedback?.();
+            feedback.clearFeedback();
+          }
+        }}
+      />
+      {installPrompt.canInstall && (
+        <InstallPromptBanner
+          onInstall={installPrompt.promptInstall}
+          onDismiss={() => installPrompt.setDismissed(true)}
+        />
+      )}
             </div>
           ) : (
             <div key="login" className="animate-fade-in">

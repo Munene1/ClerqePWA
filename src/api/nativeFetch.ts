@@ -1,4 +1,5 @@
 import { CapacitorHttp } from "@capacitor/core";
+import { API_BASE_URL } from "../config/env";
 
 const isNative = () => {
   try {
@@ -17,38 +18,61 @@ const methodMap: Record<string, (opts: any) => Promise<any>> = {
   DELETE: CapacitorHttp.delete,
 };
 
+const FALLBACK_BASE = "https://clerqe.com";
+const isLocalBase = API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1") || API_BASE_URL.includes("::1");
+let fallbackBase: string | null = null;
+
+function replaceBase(url: string, newBase: string): string {
+  return url.replace(API_BASE_URL, newBase);
+}
+
+async function doFetch(url: string, options: RequestInit & { timeout?: number }): Promise<{ data: any; status: number }> {
+  if (isNative()) {
+    const method = (options.method || "GET").toUpperCase();
+    const nativeMethod = methodMap[method] || CapacitorHttp.request;
+    const headers = (options.headers as Record<string, string>) || {};
+    const opts: Record<string, any> = {
+      url,
+      headers,
+      connectTimeout: options.timeout ?? 10000,
+      readTimeout: options.timeout ?? 10000,
+    };
+    if (options.body && method !== "GET") {
+      opts.data = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+    }
+    const res = await nativeMethod(opts);
+    return { status: res.status, data: res.data };
+  }
+
+  const controller = new AbortController();
+  const id = window.setTimeout(() => controller.abort(), options.timeout ?? 10000);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    window.clearTimeout(id);
+    const text = await res.text();
+    return { status: res.status, data: (text ? JSON.parse(text) : {}) };
+  } finally {
+    window.clearTimeout(id);
+  }
+}
+
 export async function nativeFetch<T>(
   url: string,
   options: RequestInit & { timeout?: number },
 ): Promise<{ data: T; status: number }> {
-  if (!isNative()) {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), options.timeout ?? 10000);
-    try {
-      const res = await fetch(url, { ...options, signal: controller.signal });
-      window.clearTimeout(timeout);
-      const text = await res.text();
-      return { status: res.status, data: (text ? JSON.parse(text) : {}) as T };
-    } finally {
-      window.clearTimeout(timeout);
-    }
+  if (!isLocalBase) {
+    return doFetch(url, options);
   }
 
-  const method = (options.method || "GET").toUpperCase();
-  const nativeMethod = methodMap[method] || CapacitorHttp.request;
-  const headers = (options.headers as Record<string, string>) || {};
+  const effectiveBase = fallbackBase || API_BASE_URL;
+  const effectiveUrl = effectiveBase === API_BASE_URL ? url : replaceBase(url, effectiveBase);
 
-  const opts: Record<string, any> = {
-    url,
-    headers,
-    connectTimeout: options.timeout ?? 10000,
-    readTimeout: options.timeout ?? 10000,
-  };
-
-  if (options.body && method !== "GET") {
-    opts.data = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+  try {
+    return await doFetch(effectiveUrl, { ...options, timeout: options.timeout ?? 3000 });
+  } catch (err) {
+    if (fallbackBase) throw err;
+    fallbackBase = FALLBACK_BASE;
+    const fallbackUrl = replaceBase(url, FALLBACK_BASE);
+    return doFetch(fallbackUrl, { ...options, timeout: options.timeout ?? 10000 });
   }
-
-  const res = await nativeMethod(opts);
-  return { status: res.status, data: res.data as T };
 }

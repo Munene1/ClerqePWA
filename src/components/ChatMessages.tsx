@@ -87,7 +87,7 @@ export default function ChatMessages(props: {
       <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-14 bg-gradient-to-b from-gray-100 to-transparent dark:from-[#080808]" />
       <div
         ref={scrollRef}
-        className="no-scrollbar absolute inset-0 overflow-y-auto px-5 pb-4 pt-[var(--sat)]"
+        className="no-scrollbar absolute inset-0 overflow-y-auto px-5 pb-4 pt-[calc(var(--sat)+3.5rem)] sm:pt-[calc(var(--sat)+3.75rem)]"
         onScroll={(e) => {
           const top = e.currentTarget.scrollTop;
           lastScrollTopRef.current = top;
