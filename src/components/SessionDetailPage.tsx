@@ -35,11 +35,11 @@ export default function SessionDetailPage(props: Props) {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-100 dark:bg-[#080808]">
+    <div className="flex h-dvh flex-col bg-gray-100 dark:bg-[#080808]">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto pb-6">
           {/* top spacer for shell overlay */}
-          <div className="h-[calc(3.5rem+var(--sat,0px))] sm:h-[calc(3.75rem+var(--sat,0px))]" />
+          <div className="h-12" />
 
           {props.dataLoading && props.selectedSessionWorkflows.length === 0 && props.selectedSessionMessages.length === 0 && (
             <div className="flex items-center justify-center py-20">

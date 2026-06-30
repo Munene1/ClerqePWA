@@ -39,12 +39,10 @@ export default function Sidebar(props: {
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [themeOpen, setThemeOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!props.open) return;
-    setScrolled(false);
     const handleClickOutside = (e: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
         props.onClose();
@@ -68,105 +66,138 @@ export default function Sidebar(props: {
 
   const grouped = groupByDate(props.sessions);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrolled(e.currentTarget.scrollTop > 8);
-  };
-
   return (
-    <aside
-      ref={sidebarRef}
-      className={`fixed left-0 top-0 z-50 flex h-full w-full flex-col overflow-hidden border-r border-gray-200/40 bg-white transition-[transform] duration-300 ease-out transform-gpu dark:border-gray-800/40 dark:bg-black md:w-80 pt-[var(--sat,0px)] ${
-        props.open ? "translate-x-0" : "-translate-x-full"
-      }`}
-    >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/40 px-3 py-2.5 dark:border-gray-800/40">
-        <ClerqeLogo className="h-10 text-gray-700 dark:text-gray-300" />
-        <button
-          onClick={props.onClose}
-          className="rounded-[3px] p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
-        >
-          <Icon name="close" className="text-lg" />
-        </button>
-      </div>
+    <>
+      <div
+        className={`fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm transition-opacity duration-200 ${
+          props.open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={props.onClose}
+      />
+      <aside
+        ref={sidebarRef}
+        className={`fixed left-0 top-0 z-50 flex h-full w-[88vw] max-w-80 flex-col overflow-hidden border-r border-slate-200/70 bg-white/95 shadow-2xl transition-transform duration-300 ease-out dark:border-slate-800 dark:bg-[#050908]/95 pt-[var(--sat,0px)] ${
+          props.open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 dark:border-slate-800">
+          <ClerqeLogo className="h-10 text-slate-800 dark:text-slate-100" />
+          <button
+            onClick={props.onClose}
+            className="rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900"
+          >
+            <Icon name="close" className="text-lg" />
+          </button>
+        </div>
 
-      <div className="relative flex min-h-0 flex-1 overflow-hidden">
-        <div
-          className="no-scrollbar absolute inset-0 overflow-y-auto"
-          onScroll={handleScroll}
-        >
-          <div className="pb-40">
-            <div className="px-2 pt-2 pb-1">
-              <button
-                onClick={() => { navigate("/"); props.onClose(); }}
-                className="flex w-full items-center gap-2.5 rounded-[3px] px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
-              >
-                <Icon name="forum" className="text-base" />
-                <span>Assistant</span>
-              </button>
-            </div>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="border-b border-slate-200/70 px-3 py-3 dark:border-slate-800">
+            <button
+              onClick={() => {
+                navigate("/");
+                props.onClose();
+              }}
+              className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900"
+            >
+              <Icon name="forum" className="text-base" />
+              <span>Assistant</span>
+            </button>
+            <button
+              onClick={() => {
+                navigate("/beneficiaries");
+                props.onClose();
+              }}
+              className="mt-1 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900"
+            >
+              <Icon name="account_circle" className="text-base" />
+              <span>Beneficiaries</span>
+            </button>
+          </div>
 
-            <div className="px-2 pb-4">
-              <p className="px-3 pb-2 pt-1 text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                Session history
-              </p>
-
-              {props.sessionsLoading && props.sessions.length === 0 && (
-                <div className="flex items-center justify-center py-6">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-700 dark:border-t-gray-400" />
-                </div>
-              )}
-
-              {!props.sessionsLoading && props.sessions.length === 0 && (
-                <p className="px-3 py-6 text-sm text-gray-400 dark:text-gray-500">No sessions yet</p>
-              )}
-
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+            <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+              Session history
+            </p>
+            {props.sessionsLoading && props.sessions.length === 0 && (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-200" />
+              </div>
+            )}
+            {!props.sessionsLoading && props.sessions.length === 0 && (
+              <p className="px-3 py-6 text-sm text-slate-400 dark:text-slate-500">No sessions yet</p>
+            )}
+            <div className="space-y-4">
               {grouped.map(([dateKey, dateSessions]) => (
-                <div key={dateKey} className="mb-3 last:mb-0">
-                  <p className="px-3 pb-1 text-xs font-medium text-gray-400 dark:text-gray-500">
+                <div key={dateKey}>
+                  <p className="px-3 pb-2 text-xs font-medium text-slate-400 dark:text-slate-500">
                     {getDateLabel(new Date(dateKey))}
                   </p>
-                  {dateSessions.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => { navigate("/sessions/" + s.id); props.onClose(); }}
-                      className="flex w-full items-start rounded-[3px] px-3 py-2 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-900"
-                    >
-                      <p className="truncate text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {s.last_message?.content || "Session " + s.id.slice(0, 8)}
-                      </p>
-                    </button>
-                  ))}
+                  <div className="space-y-1">
+                    {dateSessions.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          navigate("/sessions/" + s.id);
+                          props.onClose();
+                        }}
+                        className="flex w-full flex-col rounded-2xl px-3 py-3 text-left transition hover:bg-slate-100 dark:hover:bg-slate-900"
+                      >
+                        <p className="line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+                          {s.last_message?.content || "Session " + s.id.slice(0, 8)}
+                        </p>
+                        <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                          {new Date(s.started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        <div
-          className={`absolute bottom-0 left-0 right-0 bg-gray-50 transition-transform duration-300 ease-out dark:bg-[#111] ${
-            scrolled ? "translate-y-full" : ""
-          }`}
-        >
-          <div className="border-t border-gray-200/40 px-2 py-0.5 dark:border-gray-800/40">
+          <div className="border-t border-slate-200/70 bg-slate-50/90 px-3 py-3 dark:border-slate-800 dark:bg-slate-950/90">
             <button
               onClick={() => setThemeOpen(!themeOpen)}
-              className="flex w-full items-center gap-2.5 rounded-[3px] px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-900"
+              className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"
             >
-              <Icon name={props.theme === "dark" ? "dark_mode" : props.theme === "system" ? "settings" : "light_mode"} className="text-base" />
-              <span className="flex-1 text-left">{props.theme === "dark" ? "Dark mode" : props.theme === "system" ? "System theme" : "Light mode"}</span>
-              <Icon name="arrow_back" className={`text-base text-gray-400 transition-transform duration-200 ${themeOpen ? "-rotate-90" : "rotate-180"}`} />
+              <Icon
+                name={
+                  props.theme === "dark"
+                    ? "dark_mode"
+                    : props.theme === "system"
+                      ? "settings"
+                      : "light_mode"
+                }
+                className="text-base"
+              />
+              <span className="flex-1 text-left">
+                {props.theme === "dark"
+                  ? "Dark mode"
+                  : props.theme === "system"
+                    ? "System theme"
+                    : "Light mode"}
+              </span>
+              <Icon
+                name="arrow_back"
+                className={`text-base text-slate-400 transition-transform duration-200 ${
+                  themeOpen ? "-rotate-90" : "rotate-180"
+                }`}
+              />
             </button>
 
-            {themeOpen && (
-              <div className="ml-1 space-y-0.5 pl-2">
+            {themeOpen ? (
+              <div className="mt-1 space-y-1 pl-2">
                 {themeOptions.map((opt) => (
                   <button
                     key={opt.value}
-                    onClick={() => { props.onSetTheme(opt.value); props.onClose(); }}
-                    className={`flex w-full items-center gap-2.5 rounded-[3px] px-3 py-1.5 text-sm transition-colors ${
+                    onClick={() => {
+                      props.onSetTheme(opt.value);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm transition ${
                       props.theme === opt.value
-                        ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)] dark:bg-white/5 dark:text-white/80"
-                        : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                        ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)] dark:bg-white/5 dark:text-white"
+                        : "text-slate-600 hover:bg-white dark:text-slate-400 dark:hover:bg-slate-900"
                     }`}
                   >
                     <Icon name={opt.icon} className="text-sm" />
@@ -174,31 +205,34 @@ export default function Sidebar(props: {
                   </button>
                 ))}
               </div>
-            )}
-          </div>
+            ) : null}
 
-          <div className="flex items-center gap-2.5 border-t border-gray-200/40 px-3 py-2 dark:border-gray-800/40">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-              <Icon name="account_circle" className="text-base" />
+            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/90 px-3 py-3 dark:border-slate-800 dark:bg-slate-950">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                <Icon name="account_circle" className="text-base" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+                  {props.userName || "User"}
+                </p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                  {props.userEmail || ""}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  props.onLogout();
+                  props.onClose();
+                }}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+                title="Logout"
+              >
+                <Icon name="logout" className="text-base" />
+              </button>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                {props.userName || "User"}
-              </p>
-              <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                {props.userEmail || ""}
-              </p>
-            </div>
-            <button
-              onClick={() => { props.onLogout(); props.onClose(); }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[3px] text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-              title="Logout"
-            >
-              <Icon name="logout" className="text-base" />
-            </button>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
