@@ -1,147 +1,79 @@
 import { API_BASE_URL } from "../config/env";
-import type {
-  BeneficiariesResponse,
-  BeneficiaryDetailResponse,
-  GroupsResponse,
-  ImportResult,
-  SchedulesResponse,
-} from "../types/beneficiary";
-import { loadSession } from "../utils/storage";
 import { nativeFetch } from "./nativeFetch";
+import type { BeneficiaryDetail, BeneficiaryGroup, BeneficiaryListItem } from "../types/beneficiary";
 
-function getToken(): string {
-  const session = loadSession();
-  if (!session?.access_token) {
-    throw new Error("Not authenticated.");
-  }
-  return session.access_token;
-}
+const BASE = `${API_BASE_URL}/beneficiaries`;
 
-async function apiFetch<T>(path: string, opts: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  const response = await nativeFetch<Record<string, unknown>>(`${API_BASE_URL}${path}`, {
-    ...opts,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...(opts.headers || {}),
-    },
-    timeout: 12000,
-  });
-
-  if (response.status < 200 || response.status >= 300) {
-    const body = response.data || {};
-    const detail =
-      (typeof body.detail === "string" && body.detail) ||
-      (typeof body.message === "string" && body.message) ||
-      `Request failed (${response.status})`;
-    throw new Error(detail);
-  }
-
-  return response.data as T;
+function authHeaders(token: string): Record<string, string> {
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 }
 
 export const beneficiariesApi = {
-  list(q = "", groupId = "", limit = 100, offset = 0) {
-    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-    if (q) params.set("q", q);
-    if (groupId) params.set("group_id", groupId);
-    return apiFetch<BeneficiariesResponse>(`/beneficiaries?${params.toString()}`);
+  async list(
+    token: string,
+    params?: { q?: string; group_id?: string; limit?: number; offset?: number },
+  ): Promise<{ items: BeneficiaryListItem[]; count: number; limit: number; offset: number }> {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.group_id) qs.set("group_id", params.group_id);
+    if (params?.limit) qs.set("limit", String(params.limit));
+    if (params?.offset) qs.set("offset", String(params.offset));
+    const url = `${BASE}?${qs.toString()}`;
+    const { data } = await nativeFetch<{ status: string; items: BeneficiaryListItem[]; count: number; limit: number; offset: number }>(
+      url,
+      { method: "GET", headers: authHeaders(token), timeout: 10000 },
+    );
+    return data;
   },
 
-  get(id: string) {
-    return apiFetch<BeneficiaryDetailResponse>(`/beneficiaries/${id}`);
+  async get(token: string, id: string): Promise<BeneficiaryDetail> {
+    const { data } = await nativeFetch<{ status: string; beneficiary: BeneficiaryDetail }>(
+      `${BASE}/${id}`,
+      { method: "GET", headers: authHeaders(token), timeout: 10000 },
+    );
+    return data.beneficiary;
   },
 
-  create(payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; beneficiary: Record<string, unknown> }>("/beneficiaries", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+  async create(
+    token: string,
+    payload: { display_name: string; phone?: string; email?: string; notes?: string; group_ids?: string[] },
+  ): Promise<BeneficiaryDetail> {
+    const { data } = await nativeFetch<{ status: string; beneficiary: BeneficiaryDetail }>(
+      BASE,
+      { method: "POST", headers: authHeaders(token), body: JSON.stringify(payload), timeout: 10000 },
+    );
+    return data.beneficiary;
   },
 
-  update(id: string, payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; beneficiary: Record<string, unknown> }>(`/beneficiaries/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    });
+  async update(
+    token: string,
+    id: string,
+    payload: { display_name?: string; phone?: string; email?: string; notes?: string },
+  ): Promise<BeneficiaryDetail> {
+    const { data } = await nativeFetch<{ status: string; beneficiary: BeneficiaryDetail }>(
+      `${BASE}/${id}`,
+      { method: "PATCH", headers: authHeaders(token), body: JSON.stringify(payload), timeout: 10000 },
+    );
+    return data.beneficiary;
   },
 
-  delete(id: string) {
-    return apiFetch<{ status: string; deleted: boolean }>(`/beneficiaries/${id}`, {
-      method: "DELETE",
-    });
+  async delete(token: string, id: string): Promise<void> {
+    await nativeFetch(`${BASE}/${id}`, { method: "DELETE", headers: authHeaders(token), timeout: 10000 });
   },
 
-  importBeneficiaries(items: Record<string, unknown>[]) {
-    return apiFetch<ImportResult>("/beneficiaries/import", {
-      method: "POST",
-      body: JSON.stringify({ beneficiaries: items }),
-    });
+  async importCSV(token: string, beneficiaries: { display_name: string; phone?: string; email?: string }[]): Promise<{ imported: number; errors: string[] }> {
+    const { data } = await nativeFetch<{ status: string; imported: number; errors: string[] }>(
+      `${BASE}/import`,
+      { method: "POST", headers: authHeaders(token), body: JSON.stringify({ beneficiaries }), timeout: 15000 },
+    );
+    return data;
   },
 
-  listGroups() {
-    return apiFetch<GroupsResponse>("/beneficiaries/groups");
-  },
-
-  createGroup(payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; group: Record<string, unknown> }>("/beneficiaries/groups", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  },
-
-  updateGroup(id: string, payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; group: Record<string, unknown> }>(`/beneficiaries/groups/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    });
-  },
-
-  deleteGroup(id: string) {
-    return apiFetch<{ status: string; deleted: boolean }>(`/beneficiaries/groups/${id}`, {
-      method: "DELETE",
-    });
-  },
-
-  assignGroup(beneficiaryId: string, groupId: string) {
-    return apiFetch<{ status: string; membership: Record<string, unknown> }>("/beneficiaries/assign-group", {
-      method: "POST",
-      body: JSON.stringify({ beneficiary_id: beneficiaryId, group_id: groupId }),
-    });
-  },
-
-  unassignGroup(beneficiaryId: string, groupId: string) {
-    return apiFetch<{ status: string; removed: boolean }>("/beneficiaries/unassign-group", {
-      method: "POST",
-      body: JSON.stringify({ beneficiary_id: beneficiaryId, group_id: groupId }),
-    });
-  },
-
-  listSchedules(beneficiaryId = "", groupId = "") {
-    const params = new URLSearchParams();
-    if (beneficiaryId) params.set("beneficiary_id", beneficiaryId);
-    if (groupId) params.set("group_id", groupId);
-    return apiFetch<SchedulesResponse>(`/beneficiaries/schedules?${params.toString()}`);
-  },
-
-  createSchedule(payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; schedule: Record<string, unknown> }>("/beneficiaries/schedules", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  },
-
-  updateSchedule(id: string, payload: Record<string, unknown>) {
-    return apiFetch<{ status: string; schedule: Record<string, unknown> }>(`/beneficiaries/schedules/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    });
-  },
-
-  deleteSchedule(id: string) {
-    return apiFetch<{ status: string; deleted: boolean }>(`/beneficiaries/schedules/${id}`, {
-      method: "DELETE",
-    });
+  async listGroups(token: string): Promise<BeneficiaryGroup[]> {
+    const { data } = await nativeFetch<{ status: string; groups: BeneficiaryGroup[] }>(
+      `${BASE}/groups`,
+      { method: "GET", headers: authHeaders(token), timeout: 10000 },
+    );
+    return data.groups;
   },
 };

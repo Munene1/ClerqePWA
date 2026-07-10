@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { BankingEvent } from "../types/events";
 
 export interface FeedbackState {
@@ -9,18 +9,24 @@ export interface FeedbackState {
   competitiveChoice: string;
 }
 
-export function useFeedback(_lastEvent: BankingEvent | null) {
+export function useFeedback(lastEvent: BankingEvent | null) {
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
-  const requestFeedback = useCallback((toolType: string) => {
-    setFeedback({
-      toolType,
-      rating: null,
-      whatWorked: [],
-      whatWouldSwitch: [],
-      competitiveChoice: "",
-    });
-  }, []);
+  useEffect(() => {
+    if (lastEvent?.type === "feedback.request") {
+      const payload = (lastEvent as { payload?: { tool_type?: string } })?.payload;
+      const toolType = payload?.tool_type || "";
+      if (toolType) {
+        setFeedback({
+          toolType,
+          rating: null,
+          whatWorked: [],
+          whatWouldSwitch: [],
+          competitiveChoice: "",
+        });
+      }
+    }
+  }, [lastEvent]);
 
   const setRating = useCallback((rating: number) => {
     setFeedback((prev) => (prev ? { ...prev, rating } : null));
@@ -56,7 +62,6 @@ export function useFeedback(_lastEvent: BankingEvent | null) {
 
   return {
     feedback,
-    requestFeedback,
     setRating,
     toggleWhatWorked,
     toggleWhatWouldSwitch,

@@ -136,16 +136,10 @@ export default function LoginScreen(props: {
   );
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(15,82,88,0.12),_transparent_35%),linear-gradient(180deg,#fbfdfd_0%,#f3f6f6_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(20,60,57,0.4),_transparent_30%),linear-gradient(180deg,#050908_0%,#020907_100%)]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-white/55 to-transparent dark:from-white/[0.03]" />
+    <div className="relative flex min-h-dvh flex-col bg-white dark:bg-black">
       <div className="flex grow flex-col items-center justify-center px-6 pt-[calc(1.5rem+var(--sat,0px))]">
-        <div className="w-full max-w-md rounded-[32px] border border-white/80 bg-white/90 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/5 dark:bg-[#09100f]/88 dark:shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-8">
-          <div className="mb-8 flex flex-col items-center text-center">
-            <ClerqeLogo className={`inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
-            <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Secure conversational banking, starting with your email.
-            </p>
-          </div>
+        <div className="flex w-full max-w-sm flex-col items-center text-center">
+          <ClerqeLogo className={`mb-6 inline-block h-24 transition-all duration-500 ${props.loading ? "scale-95 opacity-70" : ""}`} />
           {form}
         </div>
       </div>

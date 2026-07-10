@@ -1,363 +1,154 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, PencilLine, Trash2 } from "lucide-react";
 import { beneficiariesApi } from "../api/beneficiaries";
-import GroupPopover from "../components/GroupPopover";
-import { FREQUENCY_LABELS, type BeneficiaryDetail, type BeneficiaryGroup, type BeneficiarySchedule } from "../types/beneficiary";
+import { useCachedList } from "../hooks/useCachedList";
+import type { BeneficiaryDetail, BeneficiarySchedule } from "../types/beneficiary";
+import { FREQUENCY_LABELS } from "../types/beneficiary";
 
-function detailLabel(detail: BeneficiaryDetail): string {
-  const kind = String((detail.destination_json || {}).kind || "").toLowerCase();
-  if (kind === "bill_beneficiary") return "Bill payment beneficiary";
-  if (kind === "transfer_recipient") return "Transfer beneficiary";
-  return "Saved beneficiary";
+function Section({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div className="border-b border-gray-100 px-4 py-4 last:border-b-0 dark:border-gray-800">
+      {title && <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{title}</p>}
+      {children}
+    </div>
+  );
 }
 
-function detailRows(detail: BeneficiaryDetail): Array<{ label: string; value: string }> {
-  const destination = detail.destination_json || {};
-  const rows = [
-    { label: "Phone", value: detail.phone || String(destination.recipient_phone || "") },
-    { label: "Email", value: detail.email || String(destination.recipient_email || "") },
-    { label: "Merchant", value: String(destination.merchant_name || "") },
-    { label: "Account", value: String(destination.recipient_account_number || destination.account_ref || destination.transfer_target || "") },
-    { label: "Recipient", value: String(destination.recipient_name || "") },
-  ];
-  return rows.filter((row) => row.value);
+function Row({ label, value }: { label: string; value: string | React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 py-1.5">
+      <span className="w-20 shrink-0 text-xs text-gray-400 dark:text-gray-500">{label}</span>
+      <span className="min-w-0 break-words text-sm text-gray-900 dark:text-gray-100">{value}</span>
+    </div>
+  );
 }
 
-export default function BeneficiaryDetailPage() {
+export default function BeneficiaryDetailPage({ accessToken, idOverride, onBack, compact }: { accessToken: string; idOverride?: string; onBack?: () => void; compact?: boolean }) {
+  const paramsId = useParams<{ id: string }>().id;
+  const id = idOverride || paramsId;
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
   const [detail, setDetail] = useState<BeneficiaryDetail | null>(null);
-  const [groups, setGroups] = useState<BeneficiaryGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [showPopover, setShowPopover] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [form, setForm] = useState({
-    display_name: "",
-    phone: "",
-    email: "",
-    notes: "",
-  });
 
-  const load = useCallback(async () => {
-    if (!id) return;
-    setLoading(true);
-    setError("");
-    try {
-      const [detailResponse, groupResponse] = await Promise.all([
-        beneficiariesApi.get(id),
-        beneficiariesApi.listGroups(),
-      ]);
-      const beneficiary = detailResponse.beneficiary;
-      setDetail(beneficiary);
-      setGroups(groupResponse.groups);
-      setForm({
-        display_name: beneficiary.display_name,
-        phone: beneficiary.phone || "",
-        email: beneficiary.email || "",
-        notes: beneficiary.notes || "",
-      });
-    } catch (err) {
-      setError((err as Error).message || "Unable to load beneficiary.");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const fetcher = useCallback(async () => {
+    return beneficiariesApi.get(accessToken, id!);
+  }, [accessToken, id]);
+
+  const cacheKey = `beneficiary:${accessToken}:${id}`;
+  const { data, loading, error } = useCachedList(cacheKey, fetcher);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (data) setDetail(data);
+  }, [data]);
 
-  const infoRows = useMemo(() => (detail ? detailRows(detail) : []), [detail]);
-
-  const save = async () => {
-    if (!id || !form.display_name.trim()) return;
-    setSaving(true);
-    setError("");
-    try {
-      await beneficiariesApi.update(id, {
-        display_name: form.display_name.trim(),
-        phone: form.phone.trim() || undefined,
-        email: form.email.trim() || undefined,
-        notes: form.notes.trim() || undefined,
-      });
-      setEditing(false);
-      await load();
-    } catch (err) {
-      setError((err as Error).message || "Unable to save changes.");
-    } finally {
-      setSaving(false);
+  useEffect(() => {
+    if (error && !loading) {
+      if (onBack) onBack();
+      else navigate("/beneficiaries", { replace: true });
     }
-  };
-
-  const archive = async () => {
-    if (!id) return;
-    setDeleting(true);
-    setError("");
-    try {
-      await beneficiariesApi.delete(id);
-      navigate("/beneficiaries");
-    } catch (err) {
-      setError((err as Error).message || "Unable to archive beneficiary.");
-    } finally {
-      setDeleting(false);
-    }
-  };
+  }, [error, loading, onBack, navigate]);
 
   if (loading) {
     return (
-      <div className="flex min-h-[32rem] items-center justify-center rounded-[28px] border border-white/70 bg-white/88 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-200" />
+      <div className="flex min-h-dvh items-center justify-center bg-white dark:bg-[#080808]">
+        <p className="text-sm text-gray-400 dark:text-gray-500">Loading...</p>
       </div>
     );
   }
 
-  if (!detail) {
-    return (
-      <div className="rounded-[28px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
-        {error || "Beneficiary not found."}
-      </div>
-    );
-  }
+  if (!detail) return null;
+
+  const dest = detail.destination_json || {};
+  const fallbackPhone = dest.recipient_phone as string | undefined;
+  const fallbackEmail = dest.recipient_email as string | undefined;
+  const accountNumber = (dest.recipient_account_number || dest.account_ref) as string | undefined;
+  const merchantName = dest.merchant_name as string | undefined;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-3 sm:px-4">
-      <section className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
+    <div className={`${compact ? "" : "mx-auto min-h-dvh max-w-2xl"} bg-white dark:bg-[#080808] ${compact ? "h-full overflow-y-auto no-scrollbar" : ""}`}>
+      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-[#080808]">
+        <div className="flex items-center px-4 pt-[calc(0.75rem+var(--sat,0px))] h-11">
+          {!compact && (
             <button
-              onClick={() => navigate("/beneficiaries")}
-              className="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-200"
+              onClick={() => { onBack ? onBack() : navigate("/beneficiaries"); }}
+              className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:active:bg-gray-700 ${onBack ? "" : "md:hidden"}`}
             >
-              <ArrowLeft size={16} />
-              Back
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
             </button>
-            <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">{detailLabel(detail)}</p>
-            {editing ? (
-              <input
-                value={form.display_name}
-                onChange={(event) => setForm((current) => ({ ...current, display_name: event.target.value }))}
-                className="mt-2 w-full max-w-xl rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-2xl font-semibold text-slate-900 outline-none focus:border-[var(--brand-primary)] focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:focus:bg-slate-900"
-              />
-            ) : (
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
-                {detail.display_name}
-              </h1>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {editing ? (
-              <>
-                <button
-                  onClick={() => {
-                    setEditing(false);
-                    setForm({
-                      display_name: detail.display_name,
-                      phone: detail.phone || "",
-                      email: detail.email || "",
-                      notes: detail.notes || "",
-                    });
-                  }}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={save}
-                  disabled={saving}
-                  className="rounded-2xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)]"
-              >
-                <PencilLine size={16} />
-                Edit
-              </button>
-            )}
-            <button
-              onClick={archive}
-              disabled={deleting}
-              className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-900/50 dark:bg-rose-950/20 dark:text-rose-300 dark:hover:bg-rose-950/35"
-            >
-              <Trash2 size={16} />
-              {deleting ? "Archiving..." : "Archive"}
-            </button>
-          </div>
+          )}
+          {!compact && onBack && <span className="ml-1 text-sm font-medium text-gray-900 dark:text-gray-100">Detail</span>}
         </div>
+        <div className="px-4 pb-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{detail.display_name.length > 30 ? `${detail.display_name.slice(0, 30)}…` : detail.display_name}</h1>
+        </div>
+      </div>
 
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
-            {error}
-          </div>
-        ) : null}
-      </section>
+      <div>
+        <Section title="Contact">
+          {(detail.phone || fallbackPhone) && <Row label="Phone" value={detail.phone || fallbackPhone || ""} />}
+          {(detail.email || fallbackEmail) && <Row label="Email" value={detail.email || fallbackEmail || ""} />}
+          {accountNumber && <Row label="Account" value={accountNumber} />}
+          {merchantName && <Row label="Merchant" value={merchantName} />}
+          <Row label="Notes" value={detail.notes || "—"} />
+        </Section>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <div className="space-y-6">
-          <div className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Details</h2>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Phone</label>
-                {editing ? (
-                  <input
-                    value={form.phone}
-                    onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[var(--brand-primary)] focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:focus:bg-slate-900"
-                  />
-                ) : (
-                  <p className="text-sm text-slate-700 dark:text-slate-300">{detail.phone || "—"}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Email</label>
-                {editing ? (
-                  <input
-                    value={form.email}
-                    onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[var(--brand-primary)] focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:focus:bg-slate-900"
-                  />
-                ) : (
-                  <p className="break-words text-sm text-slate-700 dark:text-slate-300">{detail.email || "—"}</p>
-                )}
-              </div>
+        <Section title="Groups">
+          {(detail.groups || []).length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {(detail.groups || []).map((g) => (
+                <span
+                  key={g.id}
+                  className="inline-block rounded border border-gray-200 px-2 py-0.5 text-xs text-gray-600 dark:border-gray-700 dark:text-gray-400"
+                >
+                  {g.name}
+                </span>
+              ))}
             </div>
+          ) : (
+            <p className="text-sm text-gray-400 dark:text-gray-500">None</p>
+          )}
+        </Section>
 
-            <div className="mt-6 space-y-4">
-              {infoRows.map((row) => (
-                <div key={row.label} className="rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{row.label}</p>
-                  <p className="mt-2 break-words text-sm text-slate-700 dark:text-slate-300">{row.value}</p>
+        <Section title="Schedules">
+          {(detail.schedules || []).length === 0 ? (
+            <p className="text-sm text-gray-400 dark:text-gray-500">No schedules</p>
+          ) : (
+            <div className="space-y-1.5">
+              {(detail.schedules || []).map((s: BeneficiarySchedule) => (
+                <div key={s.id} className="rounded border border-gray-200 px-3 py-2 dark:border-gray-700">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {s.currency} {s.amount.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {FREQUENCY_LABELS[s.frequency] || s.frequency}
+                    {s.next_run_at && <span> &middot; Next {new Date(s.next_run_at).toLocaleDateString()}</span>}
+                  </p>
                 </div>
               ))}
             </div>
+          )}
+        </Section>
 
-            <div className="mt-6">
-              <label className="text-xs font-medium uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">Notes</label>
-              {editing ? (
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
-                  rows={4}
-                  className="mt-2 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-[var(--brand-primary)] focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:focus:bg-slate-900"
-                />
-              ) : (
-                <p className="mt-2 rounded-2xl bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                  {detail.notes || "No notes saved."}
-                </p>
-              )}
+        <Section title="Recent transactions">
+          {(detail.recent_transactions || []).length === 0 ? (
+            <p className="text-sm text-gray-400 dark:text-gray-500">No transactions yet</p>
+          ) : (
+            <div className="space-y-1.5">
+              {(detail.recent_transactions || []).slice(-5).reverse().map((txn: Record<string, unknown>, i: number) => (
+                <div key={i} className="rounded border border-gray-200 px-3 py-2 dark:border-gray-700">
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    {String(txn.content ?? "").slice(0, 120) || "Transaction"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+                    {txn.created_at ? new Date(txn.created_at as string).toLocaleString() : ""}
+                  </p>
+                </div>
+              ))}
             </div>
-          </div>
-
-          <div className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Recent activity</h2>
-            {(detail.recent_transactions || []).length === 0 ? (
-              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">No linked activity yet.</p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {(detail.recent_transactions || []).slice(-5).reverse().map((transaction: Record<string, unknown>, index: number) => (
-                  <div
-                    key={`${transaction.created_at || "tx"}-${index}`}
-                    className="rounded-2xl border border-slate-200/70 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950"
-                  >
-                    <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
-                      {String(transaction.content || "Transaction")}
-                    </p>
-                    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                      {transaction.created_at ? new Date(String(transaction.created_at)).toLocaleString() : ""}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Groups</h2>
-              <div className="relative">
-                <button
-                  onClick={() => setShowPopover((current) => !current)}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-                >
-                  Manage
-                </button>
-                {showPopover ? (
-                  <GroupPopover
-                    beneficiaryId={id!}
-                    selectedGroupIds={(detail.groups || []).map((group) => group.id)}
-                    allGroups={groups}
-                    onGroupsChanged={load}
-                    onClose={() => setShowPopover(false)}
-                  />
-                ) : null}
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {(detail.groups || []).length > 0 ? (
-                (detail.groups || []).map((group) => (
-                  <span
-                    key={group.id}
-                    className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium"
-                    style={{
-                      backgroundColor: `${group.color || "#64748b"}18`,
-                      color: group.color || "#475569",
-                    }}
-                  >
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: group.color || "#64748b" }}
-                    />
-                    {group.name}
-                  </span>
-                ))
-              ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400">No groups assigned.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-sm dark:border-white/5 dark:bg-[#0a1110]/88">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Schedules</h2>
-            {(detail.schedules || []).length === 0 ? (
-              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">No schedules yet.</p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {(detail.schedules || []).map((schedule: BeneficiarySchedule) => (
-                  <div
-                    key={schedule.id}
-                    className="rounded-2xl border border-slate-200/70 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950"
-                  >
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                      {schedule.currency} {schedule.amount.toLocaleString()}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      {FREQUENCY_LABELS[schedule.frequency] || schedule.frequency}
-                    </p>
-                    {schedule.next_run_at ? (
-                      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                        Next run {new Date(schedule.next_run_at).toLocaleDateString()}
-                      </p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+          )}
+        </Section>
+      </div>
     </div>
   );
 }

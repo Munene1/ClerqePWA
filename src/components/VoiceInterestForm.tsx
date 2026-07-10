@@ -114,7 +114,7 @@ export default function VoiceInterestForm({
         className="absolute bottom-0 left-0 right-0 mx-auto flex h-[85vh] w-full max-w-xl flex-col rounded-t-[24px] border border-black/6 bg-white shadow-[0_18px_60px_rgba(15,82,88,0.14)] animate-slide-up sm:bottom-auto sm:top-1/2 sm:h-[80vh] sm:-translate-y-1/2 sm:rounded-[24px] dark:border-gray-800 dark:bg-black"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
           {checking && (
             <div className="flex items-center justify-center py-16">
               <div className="flex items-center gap-2 text-sm text-gray-500">

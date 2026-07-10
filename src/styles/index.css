@@ -54,6 +54,7 @@ body {
   padding-bottom: var(--sab);
   padding-left: var(--sal);
   padding-right: var(--sar);
+  overflow-x: hidden;
 }
 
 /* Prevent text size adjustment on orientation change */

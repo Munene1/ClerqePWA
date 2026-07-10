@@ -83,11 +83,11 @@ export default function ChatMessages(props: {
   }, [props.hasOlderHistory, props.loadingOlder, props.messages.length, props.historyMessageCount, props.onLoadOlder]);
 
   return (
-    <div className="relative flex-1">
+    <div className="relative min-h-0 flex-1">
       <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-14 bg-gradient-to-b from-gray-100 to-transparent dark:from-[#080808]" />
       <div
         ref={scrollRef}
-        className="no-scrollbar absolute inset-0 overflow-y-auto px-5 pb-4 pt-[var(--sat)]"
+        className="no-scrollbar absolute inset-0 overflow-y-auto px-5 pb-4 pt-[calc(var(--sat,0px)+3.5rem)]"
         onScroll={(e) => {
           const top = e.currentTarget.scrollTop;
           lastScrollTopRef.current = top;
@@ -99,9 +99,9 @@ export default function ChatMessages(props: {
           lastScrollTopRef.current = top;
         }}
       >
-      <div className="space-y-4">
+      <div className="space-y-3">
         {props.messages.length === 0 && !props.loadingHistory && props.criticalError && (
-          <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" />
@@ -114,7 +114,7 @@ export default function ChatMessages(props: {
         )}
         {props.messages.length === 0 && !props.loadingHistory && !props.criticalError && null}
         {props.messages.length === 0 && props.loadingHistory && (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-gray-600 dark:border-t-gray-200" />
               Loading conversation...

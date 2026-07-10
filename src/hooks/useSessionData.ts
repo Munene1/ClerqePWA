@@ -8,6 +8,9 @@ import type {
   SessionMessagesPayload,
   WorkflowsPayload,
 } from "../types/sessions";
+import { dataCache } from "../utils/dataCache";
+
+const SESSIONS_CACHE_KEY = "sessions_list";
 
 export function useSessionData(lastEvent: BankingEvent | null) {
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
@@ -31,6 +34,7 @@ export function useSessionData(lastEvent: BankingEvent | null) {
       if (p && Array.isArray(p.sessions)) {
         if (p.offset === 0) {
           setSessions(p.sessions);
+          dataCache.set(SESSIONS_CACHE_KEY, p.sessions);
         } else {
           setSessions((prev) => [...prev, ...p.sessions]);
         }
@@ -78,6 +82,7 @@ export function useSessionData(lastEvent: BankingEvent | null) {
   }, []);
 
   const resetSessions = useCallback(() => {
+    dataCache.invalidate(SESSIONS_CACHE_KEY);
     setSessions([]);
     setSessionsCount(0);
     setSelectedSessionMessages([]);
@@ -85,6 +90,18 @@ export function useSessionData(lastEvent: BankingEvent | null) {
     setDataLoading(false);
     setSessionsLoading(false);
     sessionsOffsetRef.current = 0;
+  }, []);
+
+  const loadSessions = useCallback((listSessionsFn: () => void) => {
+    const cached = dataCache.get<SessionInfo[]>(SESSIONS_CACHE_KEY);
+    if (cached !== undefined && !dataCache.isStale(SESSIONS_CACHE_KEY)) {
+      setSessions(cached);
+      setSessionsCount(cached.length);
+      setSessionsLoading(false);
+      return;
+    }
+    setSessionsLoading(true);
+    try { listSessionsFn(); } catch { setSessionsLoading(false); }
   }, []);
 
   return {
@@ -100,5 +117,6 @@ export function useSessionData(lastEvent: BankingEvent | null) {
     setDataLoading,
     resetSessionData,
     resetSessions,
+    loadSessions,
   };
 }

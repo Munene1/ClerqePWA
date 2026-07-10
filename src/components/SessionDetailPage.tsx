@@ -36,7 +36,7 @@ export default function SessionDetailPage(props: Props) {
 
   return (
     <div className="flex h-dvh flex-col bg-gray-100 dark:bg-[#080808]">
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto no-scrollbar">
         <div className="max-w-2xl mx-auto pb-6">
           {/* top spacer for shell overlay */}
           <div className="h-12" />

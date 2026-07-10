@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import type { ClarificationOption, SocketConnectionState } from "../types/banking";
 import type { ChatMessage } from "../types/chat";
 import type { ClarificationCardState, FeedbackCardState } from "../hooks/useChatMessages";
@@ -73,6 +73,14 @@ const ChatScreen = memo(function ChatScreen(props: {
 }) {
   const disabled = props.connectionState !== "connected";
   const criticalError = props.reconnectFailed ? "Unable to connect to Clerqe. Check your connection and try again." : null;
+  const [feedbackCardOpen, setFeedbackCardOpen] = useState(false);
+
+  const feedbackRequested = !!props.activeFeedback;
+
+  useEffect(() => {
+    if (!feedbackRequested) setFeedbackCardOpen(false);
+  }, [feedbackRequested]);
+
   return (
     <div className="flex h-dvh items-center justify-center bg-gray-100 dark:bg-[#080808]">
       <div className="flex h-dvh w-full max-w-2xl flex-col overflow-hidden bg-gray-100 dark:bg-[#080808]">
@@ -89,7 +97,7 @@ const ChatScreen = memo(function ChatScreen(props: {
           onLoadOlder={props.onLoadOlderHistory}
         />
         {props.activeClarificationCard && (
-          <div className="animate-fade-slide-in bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
+          <div className="flex-shrink-0 animate-fade-slide-in bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
             <ClarificationCard
               correlationId={props.activeClarificationCard.correlationId}
               question={props.activeClarificationCard.question}
@@ -99,11 +107,13 @@ const ChatScreen = memo(function ChatScreen(props: {
             />
           </div>
         )}
-        {props.activeFeedback && !props.activeFeedback.submitted && (
-          <div className="animate-fade-slide-in bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
+
+        <div className="flex-shrink-0">
+        {feedbackCardOpen ? (
+          <div className="animate-fade-slide-in px-4 pb-2">
             <FeedbackCard
-              toolType={props.activeFeedback.toolType}
-              toolLabel={TOOL_LABELS[props.activeFeedback.toolType] || props.activeFeedback.toolType}
+              toolType={props.activeFeedback?.toolType || ""}
+              toolLabel={TOOL_LABELS[props.activeFeedback?.toolType || ""] || props.activeFeedback?.toolType || ""}
               rating={props.feedbackRating}
               whatWorked={props.feedbackWhatWorked}
               whatWouldSwitch={props.feedbackWhatWouldSwitch}
@@ -111,40 +121,27 @@ const ChatScreen = memo(function ChatScreen(props: {
               whatWorkedOptions={WHAT_WORKED_OPTIONS}
               whatWouldSwitchOptions={WHAT_WOULD_SWITCH_OPTIONS}
               competitiveChoices={COMPETITIVE_CHOICES}
-              submitted={false}
+              submitted={!!props.activeFeedback?.submitted}
               onSetRating={props.onSetFeedbackRating}
               onToggleWhatWorked={props.onToggleFeedbackWhatWorked}
               onToggleWhatWouldSwitch={props.onToggleFeedbackWhatWouldSwitch}
               onSetCompetitiveChoice={props.onSetFeedbackCompetitiveChoice}
               onSubmit={props.onSubmitFeedback}
-              onDismiss={() => {}}
+              onDismiss={() => setFeedbackCardOpen(false)}
             />
           </div>
+        ) : (
+          <ChatInput
+            disabled={disabled}
+            reconnectFailed={props.reconnectFailed}
+            accessToken={props.accessToken}
+            feedbackRequested={feedbackRequested && !props.activeFeedback?.submitted}
+            onReconnect={props.onReconnect}
+            onSend={props.onSend}
+            onOpenFeedback={() => setFeedbackCardOpen(true)}
+          />
         )}
-        {props.activeFeedback?.submitted && (
-          <div className="animate-fade-slide-in px-4 py-4">
-            <FeedbackCard
-              toolType={props.activeFeedback.toolType}
-              toolLabel={TOOL_LABELS[props.activeFeedback.toolType] || props.activeFeedback.toolType}
-              rating={props.feedbackRating}
-              whatWorked={props.feedbackWhatWorked}
-              whatWouldSwitch={props.feedbackWhatWouldSwitch}
-              competitiveChoice={props.feedbackCompetitiveChoice}
-              whatWorkedOptions={WHAT_WORKED_OPTIONS}
-              whatWouldSwitchOptions={WHAT_WOULD_SWITCH_OPTIONS}
-              competitiveChoices={COMPETITIVE_CHOICES}
-              submitted={true}
-              onSetRating={() => {}}
-              onToggleWhatWorked={() => {}}
-              onToggleWhatWouldSwitch={() => {}}
-              onSetCompetitiveChoice={() => {}}
-              onSubmit={() => {}}
-              onDismiss={() => {}}
-            />
-          </div>
-        )}
-
-        <ChatInput disabled={disabled} reconnectFailed={props.reconnectFailed} accessToken={props.accessToken} onReconnect={props.onReconnect} onSend={props.onSend} />
+        </div>
       </div>
     </div>
   );
