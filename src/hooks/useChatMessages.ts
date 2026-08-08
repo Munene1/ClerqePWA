@@ -8,6 +8,7 @@ import {
   extractErrorText,
   extractStatusText,
   getEventType,
+  getPayload,
 } from "../utils/eventNormalize";
 import { loadChatHistory, saveChatHistory, clearChatHistory } from "../utils/storage";
 
