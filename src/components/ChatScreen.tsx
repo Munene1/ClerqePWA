@@ -1,10 +1,11 @@
 import { memo, useEffect, useState } from "react";
 import type { ClarificationOption, SocketConnectionState } from "../types/banking";
-import type { ChatMessage } from "../types/chat";
+import type { ChatMessage, PassengerCardState } from "../types/chat";
 import type { ClarificationCardState, FeedbackCardState } from "../hooks/useChatMessages";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 import ClarificationCard from "./ClarificationCard";
+import PassengerDetailsCard from "./PassengerDetailsCard";
 import FeedbackCard from "./FeedbackCard";
 
 const TOOL_LABELS: Record<string, string> = {
@@ -55,6 +56,7 @@ const ChatScreen = memo(function ChatScreen(props: {
   hasOlderHistory: boolean;
   loadingOlderHistory: boolean;
   activeClarificationCard: ClarificationCardState | null;
+  activePassengerCard: PassengerCardState | null;
   activeFeedback: FeedbackCardState | null;
   accessToken: string;
   feedbackRating: number | null;
@@ -65,6 +67,7 @@ const ChatScreen = memo(function ChatScreen(props: {
   onSend: (text: string) => void;
   onReconnect: () => void;
   onSelectClarification: (correlationId: string, option: ClarificationOption) => void;
+  onSubmitPassengerDetails: (actionRequestId: string, correlationId: string, leadTraveler: { name: string; email: string | null }, passengerNames: { name: string }[]) => void;
   onSetFeedbackRating: (rating: number) => void;
   onToggleFeedbackWhatWorked: (option: string) => void;
   onToggleFeedbackWhatWouldSwitch: (option: string) => void;
@@ -104,6 +107,14 @@ const ChatScreen = memo(function ChatScreen(props: {
               options={props.activeClarificationCard.options}
               status={props.activeClarificationCard.status}
               onSelectOption={props.onSelectClarification}
+            />
+          </div>
+        )}
+        {props.activePassengerCard && (
+          <div className="flex-shrink-0 animate-fade-slide-in bg-gradient-to-t from-white/80 to-transparent px-4 py-4 dark:from-black/80">
+            <PassengerDetailsCard
+              card={props.activePassengerCard}
+              onSubmit={props.onSubmitPassengerDetails}
             />
           </div>
         )}

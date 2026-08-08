@@ -65,8 +65,8 @@ export function useBankingSocket(params: {
           ...(selectedOption ? { selected_option: selectedOption } : {}),
         });
       },
-      confirmAction(action_request_id: string) {
-        clientRef.current?.send({ type: "action.confirm", action_request_id });
+      confirmAction(action_request_id: string, payload?: Record<string, unknown>) {
+        clientRef.current?.send({ type: "action.confirm", action_request_id, payload });
       },
       cancelAction(action_request_id: string) {
         clientRef.current?.send({ type: "action.cancel", action_request_id });

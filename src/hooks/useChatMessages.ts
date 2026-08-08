@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ClarificationOption } from "../types/banking";
-import type { ChatMessage } from "../types/chat";
+import type { ChatMessage, PassengerCardState } from "../types/chat";
 import type { BankingEvent, HistoryRow } from "../types/events";
 import {
   extractAssistantText,
@@ -33,6 +33,7 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [hasActiveRun, setHasActiveRun] = useState(false);
   const [activeClarificationCard, setActiveClarificationCard] = useState<ClarificationCardState | null>(null);
+  const [activePassengerCard, setActivePassengerCard] = useState<PassengerCardState | null>(null);
   const [activeFeedback, setActiveFeedback] = useState<FeedbackCardState | null>(null);
   const [historyPairCount, setHistoryPairCount] = useState(0);
   const [historyLoadedPairs, setHistoryLoadedPairs] = useState(0);
@@ -317,6 +318,32 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
       return;
     }
 
+    if (type === "passenger_details.required") {
+      const payload = getPayload(lastEvent);
+      const leadTraveler = (payload.lead_traveler as { name?: string; email?: string }) || {};
+      const flightSummary = (payload.flight_summary as Record<string, unknown>) || {};
+      activeCorrelationRef.current = resolveCorrelation(lastEvent);
+      setActivePassengerCard({
+        actionRequestId: String(payload.action_request_id || ""),
+        correlationId: String(payload.correlation_id || activeCorrelationRef.current || ""),
+        leadTraveler: {
+          name: String(leadTraveler.name || ""),
+          email: leadTraveler.email ? String(leadTraveler.email) : null,
+        },
+        additionalPassengersNeeded: Number(payload.additional_passengers_needed) || 0,
+        flightSummary: {
+          route: String(flightSummary.route || ""),
+          departureDate: String(flightSummary.departure_date || ""),
+          tripType: String(flightSummary.trip_type || "one_way"),
+          cabinClass: String(flightSummary.cabin_class || "economy"),
+          passengers: Number(flightSummary.passengers) || 1,
+        },
+        selectedFlightId: payload.selected_flight_id ? String(payload.selected_flight_id) : null,
+        status: "pending",
+      });
+      return;
+    }
+
     if (type === "message.final") {
       const correlationId = resolveCorrelation(lastEvent);
       if (correlationId) pendingMessagesRef.current.delete(correlationId);
@@ -365,8 +392,9 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
       return;
     }
 
-    if (type === "action.confirmed" || type === "action.cancelled" || type === "action.expired") {
+    if (type === "action.confirmed" || type === "action.cancelled" || type === "action.expired" || type === "action.completed") {
       setActiveStatus(null);
+      setActivePassengerCard(null);
       return;
     }
 
@@ -471,6 +499,8 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     historyLimit,
     hasOlderHistory,
     activeClarificationCard,
+    activePassengerCard,
+    setActivePassengerCard,
     activeFeedback,
     addUserMessage,
     addErrorMessage,

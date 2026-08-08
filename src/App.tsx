@@ -400,6 +400,7 @@ export default function App() {
         hasOlderHistory={chat.hasOlderHistory}
         loadingOlderHistory={loadingOlderHistory}
         activeClarificationCard={chat.activeClarificationCard}
+        activePassengerCard={chat.activePassengerCard}
         activeFeedback={chat.activeFeedback}
         feedbackRating={feedback.feedback?.rating ?? null}
         feedbackWhatWorked={feedback.feedback?.whatWorked ?? []}
@@ -443,6 +444,18 @@ export default function App() {
           } catch {
             chat.failActiveRequest();
             chat.addErrorMessage("Unable to send clarification right now.");
+          }
+        }}
+        onSubmitPassengerDetails={(actionRequestId, correlationId, leadTraveler, passengerNames) => {
+          chat.setActivePassengerCard((prev) => prev ? { ...prev, status: "submitted" } : null);
+          try {
+            socket.confirmAction(actionRequestId, {
+              lead_traveler: leadTraveler,
+              passenger_names: passengerNames,
+              correlation_id: correlationId,
+            });
+          } catch {
+            chat.addErrorMessage("Unable to submit passenger details right now.");
           }
         }}
         onSetFeedbackRating={(rating) => feedback.setRating(rating)}
