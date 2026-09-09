@@ -24,10 +24,8 @@ export default function InventoryConnectionPrompt({ accessToken }: { accessToken
       .then((result) => {
         if (!active) return;
         setState(result);
-        const options = result.businesses || [];
-        if (result.status === "available" && result.business && "shop_id" in result.business) {
-          setSelectedShopId(result.business.shop_id);
-        } else if (options.length === 1) {
+        const options = resolveBusinesses(result);
+        if (options.length === 1) {
           setSelectedShopId(options[0].shop_id);
         }
       })
@@ -48,7 +46,7 @@ export default function InventoryConnectionPrompt({ accessToken }: { accessToken
     );
   }
 
-  const businesses = state.businesses || (state.business && "shop_id" in state.business ? [state.business as InventoryBusiness] : []);
+  const businesses = resolveBusinesses(state);
   return (
     <aside className="fixed right-3 top-3 z-50 w-[22rem] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-black/10 bg-white/95 p-4 text-sm shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#111]/95" aria-label="Inventory connection available">
       <div className="font-semibold text-gray-900 dark:text-white">Inventory found</div>
@@ -91,4 +89,10 @@ export default function InventoryConnectionPrompt({ accessToken }: { accessToken
       </div>
     </aside>
   );
+}
+
+function resolveBusinesses(state: InventoryConnectionState): InventoryBusiness[] {
+  if (state.businesses?.length) return state.businesses;
+  if (state.business && "shop_id" in state.business) return [state.business as InventoryBusiness];
+  return [];
 }
