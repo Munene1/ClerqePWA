@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/env";
-import { WS_BASE_URL } from "../config/env";
+import { getActiveApiBase } from "./nativeFetch";
 
 export type LiveTranscriptEvent =
   | { type: "transcript.ready"; model: string }
@@ -8,7 +8,7 @@ export type LiveTranscriptEvent =
   | { type: "transcript.error"; message: string };
 
 export function liveTranscriptionUrl(): string {
-  return `${WS_BASE_URL}/voice/live`;
+  return `${getActiveApiBase().replace(/^http/i, "ws")}/voice/live`;
 }
 
 function extensionForMimeType(mimeType: string): string {

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../config/env";
+import { nativeFetch } from "./nativeFetch";
 
 export type InventoryBusiness = {
   shop_id: string;
@@ -19,7 +20,7 @@ async function inventoryRequest(
   path: string,
   init?: RequestInit,
 ): Promise<InventoryConnectionState> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await nativeFetch<InventoryConnectionState>(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -27,11 +28,12 @@ async function inventoryRequest(
       ...(init?.headers || {}),
     },
   });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(String(data.detail || data.message || "Inventory connection request failed."));
+  if (response.status >= 400) {
+    const data = response.data as Record<string, unknown>;
+    const detail = data.detail || data.message || "Inventory connection request failed.";
+    throw new Error(String(detail));
   }
-  return data as InventoryConnectionState;
+  return response.data;
 }
 
 export function discoverInventoryConnection(token: string): Promise<InventoryConnectionState> {
