@@ -22,6 +22,10 @@ const FALLBACK_BASE = "https://clerqe.com";
 const isLocalBase = API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1") || API_BASE_URL.includes("::1");
 let fallbackBase: string | null = null;
 
+export function getActiveApiBase(): string {
+  return fallbackBase || API_BASE_URL;
+}
+
 function replaceBase(url: string, newBase: string): string {
   return url.replace(API_BASE_URL, newBase);
 }
@@ -69,7 +73,7 @@ export async function nativeFetch<T>(
   }
 
   try {
-    return await doFetch(url, { ...options, timeout: 3000 });
+    return await doFetch(url, { ...options, timeout: Math.max(options.timeout ?? 10000, 30000) });
   } catch {
     fallbackBase = FALLBACK_BASE;
     return doFetch(replaceBase(url, FALLBACK_BASE), options);

@@ -26,3 +26,37 @@ export type PassengerCardState = {
   selectedFlightId: string | null;
   status: "pending" | "submitted";
 };
+
+export type SaleCardItem = {
+  product_id?: string;
+  product_unit_id: string;
+  sku: string;
+  name: string;
+  quantity: string | number;
+  unit_price: string | number;
+  line_total?: string | number;
+};
+
+export type SaleCardState = {
+  actionRequestId: string;
+  correlationId: string;
+  status: "prepared" | "clarification" | "processing" | "completed" | "failed" | "cancelled";
+  items: SaleCardItem[];
+  total?: string | number;
+  currency?: string;
+  clarifications?: Array<{
+    requested_item: string;
+    quantity?: string | number;
+    matches: Array<{
+      product_id: string;
+      product_unit_id: string;
+      sku: string;
+      name: string;
+      price: string | number;
+      available_stock?: string | number;
+    }>;
+  }>;
+  saleId?: string;
+  receiptNumber?: string;
+  message?: string;
+};

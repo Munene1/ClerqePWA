@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ChatScreen from "./components/ChatScreen";
 import InstallPromptBanner from "./components/InstallPromptBanner";
 import LoginScreen from "./components/LoginScreen";
+import InventoryConnectionPrompt from "./components/InventoryConnectionPrompt";
 import { isAdminLoggedIn } from "./api/admin";
 
 const IntroducingClerqe = lazy(() => import("./components/IntroducingClerqe"));
@@ -303,6 +304,10 @@ export default function App() {
         </div>
       )}
 
+      {isLoggedIn && sessionState.session?.access_token && (
+        <InventoryConnectionPrompt accessToken={sessionState.session.access_token} />
+      )}
+
       {enteringChat && (
         <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-white/95 backdrop-blur-sm animate-fade-in dark:bg-black/95">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-gray-600 dark:border-t-gray-200" />
@@ -401,6 +406,7 @@ export default function App() {
         loadingOlderHistory={loadingOlderHistory}
         activeClarificationCard={chat.activeClarificationCard}
         activePassengerCard={chat.activePassengerCard}
+        activeSaleCard={chat.activeSaleCard}
         activeFeedback={chat.activeFeedback}
         feedbackRating={feedback.feedback?.rating ?? null}
         feedbackWhatWorked={feedback.feedback?.whatWorked ?? []}
@@ -456,6 +462,27 @@ export default function App() {
             });
           } catch {
             chat.addErrorMessage("Unable to submit passenger details right now.");
+          }
+        }}
+        onConfirmSale={(actionRequestId, items, correlationId) => {
+          chat.setActiveSaleCard((prev) => prev ? { ...prev, status: "processing" } : null);
+          try {
+            socket.confirmAction(actionRequestId, {
+              prepared_sale_id: actionRequestId,
+              items,
+              correlation_id: correlationId,
+            });
+          } catch {
+            chat.setActiveSaleCard((prev) => prev ? { ...prev, status: "prepared" } : null);
+            chat.addErrorMessage("Unable to confirm the sale right now.");
+          }
+        }}
+        onCancelSale={(actionRequestId) => {
+          chat.setActiveSaleCard((prev) => prev ? { ...prev, status: "cancelled" } : null);
+          try {
+            socket.cancelAction(actionRequestId);
+          } catch {
+            chat.addErrorMessage("Unable to cancel the sale right now.");
           }
         }}
         onSetFeedbackRating={(rating) => feedback.setRating(rating)}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ClarificationOption } from "../types/banking";
-import type { ChatMessage, PassengerCardState } from "../types/chat";
+import type { ChatMessage, PassengerCardState, SaleCardState } from "../types/chat";
 import type { BankingEvent, HistoryRow } from "../types/events";
 import {
   extractAssistantText,
@@ -35,6 +35,7 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
   const [hasActiveRun, setHasActiveRun] = useState(false);
   const [activeClarificationCard, setActiveClarificationCard] = useState<ClarificationCardState | null>(null);
   const [activePassengerCard, setActivePassengerCard] = useState<PassengerCardState | null>(null);
+  const [activeSaleCard, setActiveSaleCard] = useState<SaleCardState | null>(null);
   const [activeFeedback, setActiveFeedback] = useState<FeedbackCardState | null>(null);
   const [historyPairCount, setHistoryPairCount] = useState(0);
   const [historyLoadedPairs, setHistoryLoadedPairs] = useState(0);
@@ -345,6 +346,69 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
       return;
     }
 
+    if (type === "pos.sale_prepared") {
+      const payload = getPayload(lastEvent);
+      activeCorrelationRef.current = resolveCorrelation(lastEvent);
+      setActiveSaleCard({
+        actionRequestId: String(payload.action_request_id || payload.prepared_sale_id || ""),
+        correlationId: String(payload.correlation_id || activeCorrelationRef.current || ""),
+        status: "prepared",
+        items: Array.isArray(payload.items) ? (payload.items as SaleCardState["items"]) : [],
+        total: payload.total as string | number | undefined,
+        currency: String(payload.currency || "KES"),
+        message: typeof payload.message === "string" ? payload.message : undefined,
+      });
+      setActiveStatus(null);
+      return;
+    }
+
+    if (type === "pos.sale_clarification_required") {
+      const payload = getPayload(lastEvent);
+      activeCorrelationRef.current = resolveCorrelation(lastEvent);
+      setActiveSaleCard({
+        actionRequestId: String(payload.action_request_id || payload.prepared_sale_id || ""),
+        correlationId: String(payload.correlation_id || activeCorrelationRef.current || ""),
+        status: "clarification",
+        items: Array.isArray(payload.items) ? (payload.items as SaleCardState["items"]) : [],
+        clarifications: Array.isArray(payload.clarifications) ? (payload.clarifications as SaleCardState["clarifications"]) : [],
+        currency: String(payload.currency || "KES"),
+        message: typeof payload.message === "string" ? payload.message : undefined,
+      });
+      setActiveStatus(null);
+      return;
+    }
+
+    if (type === "pos.sale_completed") {
+      const payload = getPayload(lastEvent);
+      setActiveSaleCard((prev) => ({
+        actionRequestId: String(payload.action_request_id || payload.prepared_sale_id || prev?.actionRequestId || ""),
+        correlationId: String(payload.correlation_id || activeCorrelationRef.current || prev?.correlationId || ""),
+        status: "completed",
+        items: Array.isArray(payload.items) ? (payload.items as SaleCardState["items"]) : prev?.items || [],
+        total: payload.total as string | number | undefined,
+        currency: String(payload.currency || prev?.currency || "KES"),
+        saleId: String(payload.sale_id || ""),
+        receiptNumber: payload.receipt_number ? String(payload.receipt_number) : undefined,
+        message: typeof payload.message === "string" ? payload.message : undefined,
+      }));
+      setActiveStatus(null);
+      return;
+    }
+
+    if (type === "pos.sale_failed") {
+      const payload = getPayload(lastEvent);
+      setActiveSaleCard((prev) => ({
+        actionRequestId: String(payload.action_request_id || payload.prepared_sale_id || prev?.actionRequestId || ""),
+        correlationId: String(payload.correlation_id || activeCorrelationRef.current || prev?.correlationId || ""),
+        status: "failed",
+        items: prev?.items || [],
+        currency: prev?.currency || "KES",
+        message: typeof payload.message === "string" ? payload.message : "The sale could not be completed.",
+      }));
+      setActiveStatus(null);
+      return;
+    }
+
     if (type === "message.final") {
       const correlationId = resolveCorrelation(lastEvent);
       if (correlationId) pendingMessagesRef.current.delete(correlationId);
@@ -396,6 +460,12 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     if (type === "action.confirmed" || type === "action.cancelled" || type === "action.expired" || type === "action.completed") {
       setActiveStatus(null);
       setActivePassengerCard(null);
+      if (type === "action.confirmed") {
+        setActiveSaleCard((prev) => prev ? { ...prev, status: "processing" } : prev);
+      }
+      if (type === "action.cancelled" || type === "action.expired") {
+        setActiveSaleCard((prev) => prev ? { ...prev, status: type === "action.cancelled" ? "cancelled" : "failed" } : prev);
+      }
       return;
     }
 
@@ -475,6 +545,7 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     setActiveStatus(null);
     setHasActiveRun(false);
     setActiveClarificationCard(null);
+    setActiveSaleCard(null);
     setHistoryPairCount(0);
     setHistoryLoadedPairs(0);
     setHistoryLimit(DEFAULT_HISTORY_LIMIT);
@@ -502,6 +573,8 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     activeClarificationCard,
     activePassengerCard,
     setActivePassengerCard,
+    activeSaleCard,
+    setActiveSaleCard,
     activeFeedback,
     addUserMessage,
     addErrorMessage,

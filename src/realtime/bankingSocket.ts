@@ -1,4 +1,5 @@
 import { WS_BASE_URL } from "../config/env";
+import { getActiveApiBase } from "../api/nativeFetch";
 import type { SocketConnectionState } from "../types/banking";
 import type { BankingEvent } from "../types/events";
 
@@ -72,7 +73,8 @@ export class BankingSocketClient {
   }
 
   private wsUrl(): string {
-    const base = cachedWsBase || (isLocalWs ? PRIMARY_WS : FALLBACK_WS);
+    const activeApiBase = getActiveApiBase().replace(/^http/i, "ws");
+    const base = cachedWsBase || activeApiBase || (isLocalWs ? PRIMARY_WS : FALLBACK_WS);
     return `${base}/ws/link/${encodeURIComponent(this.sessionId!)}?token=${encodeURIComponent(this.token!)}`;
   }
 
