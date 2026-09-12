@@ -30,6 +30,7 @@ export default function ChatInput({
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const monitorGainRef = useRef<GainNode | null>(null);
   const partialTranscriptRef = useRef("");
   const finalReceivedRef = useRef(false);
   const recordingRef = useRef(false);
@@ -177,7 +178,14 @@ export default function ChatInput({
       if (!navigator.mediaDevices?.getUserMedia || typeof AudioContext === "undefined") {
         throw new Error("Voice input is not supported in this browser.");
       }
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       streamRef.current = stream;
       const socket = new WebSocket(liveTranscriptionUrl());
       socketRef.current = socket;
@@ -252,19 +260,23 @@ export default function ChatInput({
     const stream = streamRef.current;
     const socket = socketRef.current;
     if (!stream || !socket || socket.readyState !== WebSocket.OPEN) return;
-    const context = new AudioContext();
+    const context = new AudioContext({ latencyHint: "interactive", sampleRate: 24000 });
     const source = context.createMediaStreamSource(stream);
     const processor = context.createScriptProcessor(4096, 1, 1);
+    const monitorGain = context.createGain();
+    monitorGain.gain.value = 0;
     processor.onaudioprocess = (event) => {
       if (socket.readyState !== WebSocket.OPEN || !recordingRef.current) return;
       const pcm = resamplePcm16(event.inputBuffer.getChannelData(0), context.sampleRate, 24000);
       socket.send(JSON.stringify({ type: "audio.append", audio: bytesToBase64(new Uint8Array(pcm.buffer)) }));
     };
     source.connect(processor);
-    processor.connect(context.destination);
+    processor.connect(monitorGain);
+    monitorGain.connect(context.destination);
     audioContextRef.current = context;
     sourceRef.current = source;
     processorRef.current = processor;
+    monitorGainRef.current = monitorGain;
     recordingRef.current = true;
   }
 
@@ -291,8 +303,10 @@ export default function ChatInput({
 
   function stopAudioCapture() {
     processorRef.current?.disconnect();
+    monitorGainRef.current?.disconnect();
     sourceRef.current?.disconnect();
     processorRef.current = null;
+    monitorGainRef.current = null;
     sourceRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;

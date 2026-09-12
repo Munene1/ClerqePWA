@@ -2,10 +2,13 @@ import { useMemo, useState } from "react";
 
 import type { SaleCardState } from "../types/chat";
 
+type SaleClarificationMatch = NonNullable<SaleCardState["clarifications"]>[number]["matches"][number];
+
 export default function SaleConfirmationCard(props: {
   card: SaleCardState;
   onConfirm: (actionRequestId: string, items: Array<{ product_unit_id: string; quantity: number }>, correlationId: string) => void;
   onCancel: (actionRequestId: string) => void;
+  onSelectClarification: (match: SaleClarificationMatch, correlationId: string) => void;
 }) {
   const [items, setItems] = useState(props.card.items);
   const locked = ["processing", "completed", "failed", "cancelled"].includes(props.card.status);
@@ -30,18 +33,23 @@ export default function SaleConfirmationCard(props: {
               <div className="mb-2 text-sm text-gray-700 dark:text-gray-200">{clarification.requested_item}</div>
               <div className="space-y-2">
                 {clarification.matches.map((match) => (
-                  <div key={match.product_unit_id} className="rounded-xl border border-black/10 bg-white p-2 text-sm dark:border-white/10 dark:bg-black/20">
+                  <button
+                    key={match.product_unit_id}
+                    type="button"
+                    onClick={() => props.onSelectClarification(match, props.card.correlationId)}
+                    className="block w-full rounded-xl border border-black/10 bg-white p-2 text-left text-sm transition hover:border-[var(--brand-primary)] hover:bg-[var(--brand-primary-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/30 dark:border-white/10 dark:bg-black/20 dark:hover:bg-white/10"
+                  >
                     <div className="font-medium text-gray-900 dark:text-white">{match.name}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {match.sku} · {currency} {match.price} · stock {match.available_stock ?? "0"}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Reply with the exact product name or SKU to continue.</p>
+        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Tap the matching product to continue.</p>
       </div>
     );
   }

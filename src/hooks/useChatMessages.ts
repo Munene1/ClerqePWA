@@ -412,7 +412,10 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     if (type === "message.final") {
       const correlationId = resolveCorrelation(lastEvent);
       if (correlationId) pendingMessagesRef.current.delete(correlationId);
-      if (activeClarificationCard && activeClarificationCard.status === "pending") {
+      const saleCardOwnsResponse =
+        activeSaleCard &&
+        ["clarification", "prepared", "processing", "completed", "failed"].includes(activeSaleCard.status);
+      if ((activeClarificationCard && activeClarificationCard.status === "pending") || saleCardOwnsResponse) {
         clearActiveRun(correlationId);
         return;
       }
@@ -492,7 +495,7 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
       setTimeout(() => setActiveFeedback(null), 3000);
       return;
     }
-  }, [hasActiveRun, lastEvent, activeClarificationCard]);
+  }, [hasActiveRun, lastEvent, activeClarificationCard, activeSaleCard]);
 
   function addUserMessage(text: string, correlationId?: string) {
     const activeCorrelation = correlationId || crypto.randomUUID();

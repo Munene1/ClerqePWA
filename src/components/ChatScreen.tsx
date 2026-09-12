@@ -71,6 +71,7 @@ const ChatScreen = memo(function ChatScreen(props: {
   onSelectClarification: (correlationId: string, option: ClarificationOption) => void;
   onSubmitPassengerDetails: (actionRequestId: string, correlationId: string, leadTraveler: { name: string; email: string | null }, passengerNames: { name: string }[]) => void;
   onConfirmSale: (actionRequestId: string, items: Array<{ product_unit_id: string; quantity: number }>, correlationId: string) => void;
+  onSelectSaleClarification: (match: NonNullable<SaleCardState["clarifications"]>[number]["matches"][number], correlationId: string) => void;
   onCancelSale: (actionRequestId: string) => void;
   onSetFeedbackRating: (rating: number) => void;
   onToggleFeedbackWhatWorked: (option: string) => void;
@@ -127,6 +128,7 @@ const ChatScreen = memo(function ChatScreen(props: {
             <SaleConfirmationCard
               card={props.activeSaleCard}
               onConfirm={props.onConfirmSale}
+              onSelectClarification={props.onSelectSaleClarification}
               onCancel={props.onCancelSale}
             />
           </div>

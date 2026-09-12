@@ -477,6 +477,27 @@ export default function App() {
             chat.addErrorMessage("Unable to confirm the sale right now.");
           }
         }}
+        onSelectSaleClarification={(match, correlationId) => {
+          const label = match.sku || match.name;
+          const text = `Use ${label}`;
+          const nextCorrelationId = chat.addUserMessage(text, correlationId);
+          try {
+            socket.sendUserMessage(
+              text,
+              {
+                type: "product",
+                label,
+                value: match.sku || match.product_unit_id,
+                product_id: match.product_id,
+                product_unit_id: match.product_unit_id,
+              },
+              nextCorrelationId,
+            );
+          } catch {
+            chat.failActiveRequest();
+            chat.addErrorMessage("Unable to send product choice right now.");
+          }
+        }}
         onCancelSale={(actionRequestId) => {
           chat.setActiveSaleCard((prev) => prev ? { ...prev, status: "cancelled" } : null);
           try {
