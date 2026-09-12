@@ -59,6 +59,16 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     liveMessagesRef.current = liveMessages;
   }, [liveMessages]);
 
+  useEffect(() => {
+    if (!activeSaleCard || !["completed", "failed", "cancelled"].includes(activeSaleCard.status)) return;
+    const timeout = window.setTimeout(() => {
+      setActiveSaleCard((current) =>
+        current?.actionRequestId === activeSaleCard.actionRequestId ? null : current,
+      );
+    }, 6000);
+    return () => window.clearTimeout(timeout);
+  }, [activeSaleCard?.actionRequestId, activeSaleCard?.status]);
+
   // Hydrate from localStorage cache when customerId becomes available
   useEffect(() => {
     if (!customerId) return;
@@ -455,6 +465,12 @@ export function useChatMessages(lastEvent: BankingEvent | null, customerId?: str
     }
 
     if (type === "action.confirmation_required") {
+      const payload = getPayload(lastEvent);
+      const toolName = String(payload.tool_name || "");
+      const actionType = String(payload.action_type || "");
+      if (toolName === "pos_create_sale" || actionType === "pos_sale") {
+        return;
+      }
       const prompt = buildApprovalPrompt(lastEvent) || "Please confirm to continue.";
       setActiveStatus(prompt);
       return;

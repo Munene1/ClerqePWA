@@ -465,11 +465,15 @@ export default function App() {
           }
         }}
         onConfirmSale={(actionRequestId, items, correlationId) => {
+          if (items.length === 0) {
+            chat.addErrorMessage("No sale items to confirm. Please prepare the sale again.");
+            return;
+          }
           chat.setActiveSaleCard((prev) => prev ? { ...prev, status: "processing" } : null);
           try {
             socket.confirmAction(actionRequestId, {
               prepared_sale_id: actionRequestId,
-              items,
+              ...(items.length > 0 ? { items } : {}),
               correlation_id: correlationId,
             });
           } catch {
@@ -480,6 +484,8 @@ export default function App() {
         onSelectSaleClarification={(match, correlationId) => {
           const label = match.sku || match.name;
           const text = `Use ${label}`;
+          chat.setActiveSaleCard(null);
+          chat.setActiveStatus("Checking selected product...");
           const nextCorrelationId = chat.addUserMessage(text, correlationId);
           try {
             socket.sendUserMessage(

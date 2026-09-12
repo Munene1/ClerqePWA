@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { SaleCardState } from "../types/chat";
 
@@ -13,6 +13,10 @@ export default function SaleConfirmationCard(props: {
   const [items, setItems] = useState(props.card.items);
   const locked = ["processing", "completed", "failed", "cancelled"].includes(props.card.status);
   const currency = props.card.currency || "KES";
+
+  useEffect(() => {
+    setItems(props.card.items);
+  }, [props.card.actionRequestId, props.card.items]);
   const total = useMemo(
     () =>
       items.reduce((sum, item) => {
